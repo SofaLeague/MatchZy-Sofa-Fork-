@@ -74,7 +74,7 @@ public partial class MatchZy
         }
         catch (Exception e)
         {
-            Log($"[EventPlayerConnectFull FATAL] An error occurred: {e.Message}");
+          //  Log($"[EventPlayerConnectFull FATAL] An error occurred: {e.Message}");
             return HookResult.Continue;
         }
 
