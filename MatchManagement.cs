@@ -385,21 +385,20 @@ namespace MatchZy
             });
 
             AddTimer(matchConfig.TimeToStart - 60, () => {
-                  if (isWarmup) {
-                    if (IsAllowTimer) {
-                        PrintToAllChat($"1 minute left to .ready");
-                    }
-                  }
+                if (!IsAllowTimer) return;
+
+                if (isWarmup) {
+                    PrintToAllChat($"1 minute left to .ready");
+                }
             });
 
             AddTimer(matchConfig.TimeToStart, () => {
-                  if (isWarmup) {
-                    if (IsAllowTimer) {
+                if (!IsAllowTimer) return;
+
+                if (isWarmup) {
                     EndSeries(null, 5, 0, 0);
                     Log($"due to nezahod");
-                    }
-                  }
-              //  if (!isMatchLive || !matchStarted ||  !isPaused || !isKnifeRound || !isSideSelectionPhase){
+                }
             });
 
             Log($"[LoadMatchFromJSON] Success with matchid: {liveMatchId}!");
