@@ -233,7 +233,6 @@ namespace MatchZy
             unreadyPlayerMessageTimer = null;
             unreadyPlayerMessageTimer ??= AddTimer(chatTimerDelay, SendUnreadyPlayersMessage, TimerFlags.REPEAT);
             isWarmup = true;
-            isTimeToConnectactivated = true;
             ExecWarmupCfg();
         }
 
@@ -248,7 +247,6 @@ namespace MatchZy
 
             // Setting match phases bools
             matchStarted = true;
-            isTimeToConnectactivated = false;
             isKnifeRound = true;
             readyAvailable = false;
             isWarmup = false;
@@ -282,7 +280,6 @@ namespace MatchZy
         private void StartAfterKnifeWarmup()
         {
             isWarmup = true;
-            isTimeToConnectactivated = true;
             ExecWarmupCfg();
             knifeWinnerName = knifeWinner == 3 ? reverseTeamSides["CT"].teamName : reverseTeamSides["TERRORIST"].teamName;
             ShowDamageInfo();
@@ -298,7 +295,6 @@ namespace MatchZy
             isSideSelectionPhase = false;
             matchStarted = true;
             isMatchLive = true;
-            isTimeToConnectactivated = false;
             readyAvailable = false;
             isKnifeRound = false;
         }
@@ -391,7 +387,6 @@ namespace MatchZy
                 isMatchSetup = false;
 
                 isWarmup = true;
-                isTimeToConnectactivated = true;
                 isKnifeRound = false;
                 isSideSelectionPhase = false;
                 isMatchLive = false;
@@ -955,6 +950,8 @@ namespace MatchZy
 
             KillPhaseTimers();
 
+
+
             AddTimer(restartDelay - 4, () =>
             {
                 if (!isMatchSetup) return;
@@ -964,12 +961,12 @@ namespace MatchZy
                 isPaused = false;
 
                 isWarmup = true;
-                isTimeToConnectactivated = true;
                 isKnifeRound = false;
                 isSideSelectionPhase = false;
                 isMatchLive = false;
                 isPractice = false;
                 isDryRun = false;
+                IsAllowTimer = false;
                 StartWarmup();
                 SetMapSides();
             });

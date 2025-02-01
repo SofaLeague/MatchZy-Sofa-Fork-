@@ -316,7 +316,6 @@ namespace MatchZy
             }
             readyAvailable = true;
             isWarmup = true;
-            isTimeToConnectactivated = true;
             StartWarmup();
         }
 
@@ -362,7 +361,6 @@ namespace MatchZy
                 });
             }
             isWarmup = true;
-            isTimeToConnectactivated = true;
             readyAvailable = true;
             isPreVeto = false;
             isVeto = false;
@@ -652,7 +650,6 @@ namespace MatchZy
         public void SkipVeto()
         {
             isWarmup = true;
-            isTimeToConnectactivated = true;
             readyAvailable = true;
             isPreVeto = false;
             isVeto = false;

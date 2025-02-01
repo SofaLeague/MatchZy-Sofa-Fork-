@@ -19,6 +19,8 @@ namespace MatchZy
 
         public bool matchModeOnly = false;
 
+        public bool IsAllowTimer = false;
+
         public bool resetCvarsOnSeriesEnd = true;
 
         public string loadedConfigFile = "";
@@ -362,6 +364,8 @@ namespace MatchZy
 
             isMatchSetup = true;
 
+            IsAllowTimer = true;
+
             if(matchConfig.SkipVeto) SetMapSides();
 
             SetTeamNames();
@@ -382,14 +386,18 @@ namespace MatchZy
 
             AddTimer(matchConfig.TimeToStart - 60, () => {
                   if (isWarmup) {
-                    PrintToAllChat($"1 minute left to .ready");
+                    if (IsAllowTimer) {
+                        PrintToAllChat($"1 minute left to .ready");
+                    }
                   }
             });
 
             AddTimer(matchConfig.TimeToStart, () => {
                   if (isWarmup) {
+                    if (IsAllowTimer) {
                     EndSeries(null, 5, 0, 0);
                     Log($"due to nezahod");
+                    }
                   }
               //  if (!isMatchLive || !matchStarted ||  !isPaused || !isKnifeRound || !isSideSelectionPhase){
             });
