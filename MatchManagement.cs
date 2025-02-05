@@ -385,7 +385,7 @@ namespace MatchZy
             });
 
             AddTimer(matchConfig.TimeToStart - 60, () => {
-                if (!IsAllowTimer) return;
+                if (!IsAllowTimer || isSideSelectionPhase) return;
 
                 if (isWarmup) {
                     PrintToAllChat($"1 minute left to .ready");
@@ -393,7 +393,7 @@ namespace MatchZy
             });
 
             AddTimer(matchConfig.TimeToStart, () => {
-                if (!IsAllowTimer) return;
+                if (!IsAllowTimer || isSideSelectionPhase) return;
 
                 if (isWarmup) {
                     EndSeries(null, 5, 0, 0);
