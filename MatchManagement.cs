@@ -407,7 +407,7 @@ namespace MatchZy
                         EndSeries(null, 5, 0, 0);
                         Log($"due to nezahod");
                     }
-                },
+                }
             });
 
             Log($"[LoadMatchFromJSON] Success with matchid: {liveMatchId}!");
