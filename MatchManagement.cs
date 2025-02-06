@@ -3,6 +3,7 @@ using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes.Registration;
 using CounterStrikeSharp.API.Modules.Commands;
+using CounterStrikeSharp.API.Modules.Timers;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Utils;
 using Newtonsoft.Json.Linq;
@@ -24,6 +25,10 @@ namespace MatchZy
         public bool resetCvarsOnSeriesEnd = true;
 
         public string loadedConfigFile = "";
+
+        //public CounterStrikeSharp.API.Modules.Timers.Timer? LogJoinTimer = null;
+
+        //public CounterStrikeSharp.API.Modules.Timers.Timer? EndGameTimer = null;
 
         public Team matchzyTeam1 = new() {
             teamName = "COUNTER-TERRORISTS"
@@ -385,20 +390,24 @@ namespace MatchZy
             });
 
             AddTimer(matchConfig.TimeToStart - 60, () => {
-                if (!IsAllowTimer || isSideSelectionPhase) return;
+                if (matchStarted) return;
 
                 if (isWarmup) {
-                    PrintToAllChat($"1 minute left to .ready");
+                    if (IsAllowTimer) {
+                        PrintToAllChat($"1 minute left to .ready");
+                    }
                 }
             });
 
             AddTimer(matchConfig.TimeToStart, () => {
-                if (!IsAllowTimer || isSideSelectionPhase) return;
+                if (matchStarted) return;
 
                 if (isWarmup) {
-                    EndSeries(null, 5, 0, 0);
-                    Log($"due to nezahod");
-                }
+                    if (IsAllowTimer) {
+                        EndSeries(null, 5, 0, 0);
+                        Log($"due to nezahod");
+                    }
+                },
             });
 
             Log($"[LoadMatchFromJSON] Success with matchid: {liveMatchId}!");

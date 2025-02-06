@@ -275,6 +275,7 @@ namespace MatchZy
                 @event.Reason = finalEvent;
                 isSideSelectionPhase = true;
                 isKnifeRound = false;
+                IsAllowTimer = false;
                 isTimeToConnectactivated = false;
                 StartAfterKnifeWarmup();
 

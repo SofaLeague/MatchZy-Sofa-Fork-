@@ -62,7 +62,7 @@ public partial class MatchZy
 
                 if (GetRealPlayersCount() == minimumReadyRequired * 2) {
                     AddTimer(2.0f, () => {
-                        HandleMatchStart();
+                    //    HandleMatchStart();
                     });
                 }
             }
