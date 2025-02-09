@@ -389,6 +389,11 @@ namespace MatchZy
                 await SendEventAsync(seriesStartedEvent);
             });
 
+            LogJoinTimer?.Kill();
+            EndGameTimer?.Kill();
+            LogJoinTimer = null;
+            EndGameTimer = null;
+
             LogJoinTimer ??= AddTimer(matchConfig.TimeToStart - 60, () => {
                 if (matchStarted) return;
 
