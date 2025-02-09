@@ -345,13 +345,13 @@ namespace MatchZy
             unreadyPlayerMessageTimer?.Kill();
             sideSelectionMessageTimer?.Kill();
             pausedStateTimer?.Kill();
-            //LogJoinTimer?.Kill();
-            //EndGameTimer?.Kill();
+            LogJoinTimer?.Kill();
+            EndGameTimer?.Kill();
             unreadyPlayerMessageTimer = null;
             sideSelectionMessageTimer = null;
             pausedStateTimer = null;
-            //LogJoinTimer = null;
-            //EndGameTimer = null;
+            LogJoinTimer = null;
+            EndGameTimer = null;
         }
 
 
