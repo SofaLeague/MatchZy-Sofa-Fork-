@@ -394,7 +394,7 @@ namespace MatchZy
             LogJoinTimer = null;
             EndGameTimer = null;
 
-            LogJoinTimer ??= AddTimer(matchConfig.TimeToStart - 60, () => {
+            LogJoinTimer = AddTimer(matchConfig.TimeToStart - 60, () => {
                 if (matchStarted) return;
 
                 if (isWarmup) {
@@ -404,7 +404,7 @@ namespace MatchZy
                 }
             });
 
-           EndGameTimer ??= AddTimer(matchConfig.TimeToStart, () => {
+           EndGameTimer = AddTimer(matchConfig.TimeToStart, () => {
                 if (matchStarted) return;
 
                 if (isWarmup) {
@@ -417,20 +417,6 @@ namespace MatchZy
 
             Log($"[LoadMatchFromJSON] Success with matchid: {liveMatchId}!");
             return true;
-        }
-
-        public HookResult EventPlayerConnectFullHandler1(EventPlayerConnectFull @event, GameEventInfo info)
-        {
-            if (readyAvailable && !matchStarted)
-            {
-                if (GetRealPlayersCount() == matchConfig.MinPlayersToReady) {
-                    AddTimer(2.0f, () => {
-                        Server.ExecuteCommand("say 123");
-                        HandleMatchStart();
-                    });
-                }
-            }
-            return HookResult.Continue;
         }
 
         public void SetMapSides() {

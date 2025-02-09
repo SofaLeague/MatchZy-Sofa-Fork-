@@ -6,6 +6,7 @@ using CounterStrikeSharp.API.Modules.Utils;
 namespace MatchZy;
 public partial class MatchZy
 {
+    public CounterStrikeSharp.API.Modules.Timers.Timer? AFKTime = null;
     public HookResult EventPlayerConnectFullHandler(EventPlayerConnectFull @event, GameEventInfo info)
     {
         try
@@ -60,9 +61,13 @@ public partial class MatchZy
                     AutoStart();
                 }
 
-                if (GetRealPlayersCount() == minimumReadyRequired * 2) {
-                    AddTimer(2.0f, () => {
-                    //    HandleMatchStart();
+                if (GetRealPlayersCount() == matchConfig.MinPlayersToReady * 2) {
+                    Log("11111111111111111111111111111111111111111111111111111111111");
+                    Log(matchConfig.MinPlayersToReady.ToString());
+                    Log(GetRealPlayersCount().ToString());
+                    Log("11111111111111111111111111111111111111111111111111111111111");
+                    AddTimer(5.0f, () => {
+                        HandleMatchStart();
                     });
                 }
             }
@@ -88,6 +93,21 @@ public partial class MatchZy
             if (!IsPlayerValid(player)) return HookResult.Continue;
             if (!player!.UserId.HasValue) return HookResult.Continue;
             int userId = player.UserId.Value;
+
+          /*  if (GetRealPlayersCount() == 0) {
+                AFKTime = AddTimer(matchConfig.AFKTime, () => {
+                    if (matchStarted) return;
+
+                    if (GetRealPlayersCount() == 0) {
+                        EndSeries(null, 5, 0, 0);
+                        Log("Due to AFK");
+                    }
+                    else {
+                        return;
+                    }
+
+                });
+            }*/
 
             if (playerReadyStatus.ContainsKey(userId))
             {
