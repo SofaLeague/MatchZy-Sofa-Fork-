@@ -37,7 +37,7 @@ namespace MatchZy
 
         public bool mapReloadRequired = false;
 
-        public CounterStrikeSharp.API.Modules.Timers.Timer? LongSideTimer = null;
+        public CounterStrikeSharp.API.Modules.Timers.Timer? SideSelectionTimer = null;
 
         // Pause Data
         public bool isPaused = false;

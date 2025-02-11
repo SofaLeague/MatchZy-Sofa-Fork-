@@ -55,6 +55,9 @@ namespace MatchZy
         [JsonPropertyName("get5_AFKTime")]
         public int AFKTime { get; set; } = 300;
 
+        [JsonPropertyName("get5_side_selection_time")]
+        public int sideselectiontime { get; set; } = 10;
+
         [JsonPropertyName("wingman")]
         public bool Wingman { get; set; } = false;
 

@@ -277,9 +277,24 @@ namespace MatchZy
             // Server.PrintToChatAll($"{chatPrefix} {ChatColors.Green}{knifeWinnerName}{ChatColors.Default} Won the knife. Waiting for them to type {ChatColors.Green}.stay{ChatColors.Default} or {ChatColors.Green}.switch{ChatColors.Default}");
         }
 
+        public void DrawSideSelection()
+        {
+            if (!isSideSelectionPhase) return;
+            SideSelectionTimer?.Kill();
+            SideSelectionTimer = null;
+            SideSelectionTimer = AddTimer(matchConfig.sideselectiontime, () => 
+            {
+                if (isSideSelectionPhase) {
+                    PrintToAllChat(Localizer["matchzy.knife.drawsideselection", knifeWinnerName]);
+                    StartLive();
+                }
+            });
+        }
+
         private void StartAfterKnifeWarmup()
         {
             isWarmup = true;
+         //   DrawSideSelection();
             ExecWarmupCfg();
             knifeWinnerName = knifeWinner == 3 ? reverseTeamSides["CT"].teamName : reverseTeamSides["TERRORIST"].teamName;
             ShowDamageInfo();
@@ -304,6 +319,8 @@ namespace MatchZy
             SetLiveFlags();
             KillPhaseTimers();
             ExecLiveCFG();
+            SideSelectionTimer?.Kill();
+            SideSelectionTimer = null;
             // Adding timer here to make sure that CFG execution is completed till then
             AddTimer(1, () =>
             {

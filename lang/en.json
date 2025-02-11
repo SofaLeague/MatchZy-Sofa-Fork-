@@ -6,6 +6,7 @@
   "matchzy.knife.sidedecisionpending": "{green}{0}{default} won the knife round. Waiting for them to type {green}.stay{default} or {green}.switch{default}.",
   "matchzy.knife.decidedtostay": "{green}{0}{default} has decided to stay.",
   "matchzy.knife.decidedtoswitch": "{green}{0}{default} has decided to switch.",
+  "matchzy.knife.drawsideselection": "{green}{0}{default} decied to stay due to the lapse of time",
 
   "matchzy.pause.pausedthematch": "{green}{0}{default} has paused the match. Type .unpause to unpause the match.",
   "matchzy.pause.teamsunpausedthematch": "Both teams have unpaused, resuming the match!",
