@@ -94,7 +94,7 @@ public partial class MatchZy
             if (!player!.UserId.HasValue) return HookResult.Continue;
             int userId = player.UserId.Value;
 
-            if (GetRealPlayersCount() == 0) 
+          /*  if (GetRealPlayersCount() == 0) 
             {
                 if (!matchStarted) 
                     return HookResult.Continue;
@@ -114,7 +114,7 @@ public partial class MatchZy
                         return;
                     }
                 });
-            }
+            }*/
 
 
             if (playerReadyStatus.ContainsKey(userId))
