@@ -344,7 +344,7 @@ namespace MatchZy
                 {
                     gameRules.CTTimeOuts = int.Parse(ctTimeouts);
                 }
-                if (backupData.TryGetValue("valve_backup", out var valveBackup))
+              /*  if (backupData.TryGetValue("valve_backup", out var valveBackup))
                 {
                     string tempFileName = fileName.Replace(".json", ".txt");
                     if (backupData.TryGetValue("round", out var roundNumber))
@@ -371,7 +371,7 @@ namespace MatchZy
                         StartDemoRecording();
                     });
                     // AddTimer(5, () => File.Delete(tempFilePath));
-                }
+                }*/
             }
             catch (Exception e)
             {
@@ -410,11 +410,11 @@ namespace MatchZy
                 }
 
                 var gameRules = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").First().GameRules!;
-                string lastBackupFilePath = $"matchzy_{liveMatchId}_{matchConfig.CurrentMapNumber}_round{round}.txt"; ;
-                bool lastBackupExists = File.Exists(Path.Combine(Server.GameDirectory, "csgo", lastBackupFilePath));
-                lastBackupFilePath = Path.Combine(Server.GameDirectory, "csgo", lastBackupFilePath);
+             //   string lastBackupFilePath = $"matchzy_{liveMatchId}_{matchConfig.CurrentMapNumber}_round{round}.txt"; ;
+          //      bool lastBackupExists = File.Exists(Path.Combine(Server.GameDirectory, "csgo", lastBackupFilePath));
+           //     lastBackupFilePath = Path.Combine(Server.GameDirectory, "csgo", lastBackupFilePath);
 
-                string valveBackupContent = lastBackupExists ? File.ReadAllText(lastBackupFilePath) : "";
+              //  string valveBackupContent = lastBackupExists ? File.ReadAllText(lastBackupFilePath) : "";
 
                 Dictionary<string, string> roundData = new()
                     {
@@ -441,7 +441,7 @@ namespace MatchZy
                         { "CTTimeOuts", gameRules.CTTimeOuts.ToString() },
                         { "match_loaded", isMatchSetup.ToString() },
                         { "match_config", GetMatchConfig() },
-                        { "valve_backup", valveBackupContent }
+                     //   { "valve_backup", valveBackupContent }
                     };
                 JsonSerializerOptions options = new()
                 {

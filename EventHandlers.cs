@@ -94,20 +94,28 @@ public partial class MatchZy
             if (!player!.UserId.HasValue) return HookResult.Continue;
             int userId = player.UserId.Value;
 
-          /*  if (GetRealPlayersCount() == 0) {
-                AFKTime = AddTimer(matchConfig.AFKTime, () => {
-                    if (matchStarted) return;
+            if (GetRealPlayersCount() == 0) 
+            {
+                if (!matchStarted) 
+                    return HookResult.Continue;
 
-                    if (GetRealPlayersCount() == 0) {
+                AFKTime?.Kill();
+                AFKTime = null;
+
+                AFKTime = AddTimer(matchConfig.AFKTime, () => 
+                {
+                    if (GetRealPlayersCount() == 0) 
+                    {
                         EndSeries(null, 5, 0, 0);
-                        Log("Due to AFK");
+                        Log("Due to AFK - Game ended due to inactivity.");
                     }
-                    else {
+                    else
+                    {
                         return;
                     }
-
                 });
-            }*/
+            }
+
 
             if (playerReadyStatus.ContainsKey(userId))
             {
