@@ -85,6 +85,20 @@ namespace MatchZy
 
         // SQLite/MySQL Database 
         private Database database = new();
+
+        public void DrawSideSelection()
+        {
+            if (!isSideSelectionPhase) return;
+            SideSelectionTimer?.Kill();
+            SideSelectionTimer = null;
+            SideSelectionTimer = AddTimer(matchConfig.sideselectiontime, () => 
+            {
+                if (isSideSelectionPhase) {
+                    PrintToAllChat(Localizer["matchzy.knife.drawsideselection", knifeWinnerName]);
+                    StartLive();
+                }
+            });
+        }
     
         public override void Load(bool hotReload) {
             
@@ -280,6 +294,7 @@ namespace MatchZy
                 IsAllowTimer = false;
                 isTimeToConnectactivated = false;
                 StartAfterKnifeWarmup();
+                DrawSideSelection();
 
                 return HookResult.Changed;
             }, HookMode.Pre);
