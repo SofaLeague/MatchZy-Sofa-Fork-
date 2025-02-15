@@ -4,6 +4,7 @@ using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Modules.Utils;
 using CounterStrikeSharp.API.Core.Attributes;
 using CounterStrikeSharp.API.Modules.Timers;
+using CounterStrikeSharp.API.Modules.Admin;
 
 
 namespace MatchZy
@@ -262,6 +263,8 @@ namespace MatchZy
 
                 return HookResult.Continue;
             });
+
+            AddCommandListener("jointeam", CommandListener_BlockOutput);
 
             AddCommandListener("jointeam", (player, info) =>
             {
@@ -557,6 +560,32 @@ namespace MatchZy
             RegisterEventHandler<EventDecoyDetonate>(EventDecoyDetonateHandler);
 
             Console.WriteLine($"[{ModuleName} {ModuleVersion} LOADED] MatchZy by WD- (https://github.com/shobhit-pathak/)");
+        }
+
+        private HookResult CommandListener_BlockOutput(CCSPlayerController? player, CommandInfo info)
+        {
+            if (player == null)
+            {
+                return HookResult.Continue;
+            }
+
+            if (!player.IsValid)
+            {
+                return HookResult.Continue;
+            }
+
+            if (!player.PlayerPawn.IsValid)
+            {
+                return HookResult.Continue;
+            }
+
+            if (AdminManager.PlayerHasPermissions(player, "@css/root"))
+            {
+                return HookResult.Continue;
+            }
+
+
+            return HookResult.Stop;
         }
     }
 }
