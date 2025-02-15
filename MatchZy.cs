@@ -294,7 +294,7 @@ namespace MatchZy
                 IsAllowTimer = false;
                 isTimeToConnectactivated = false;
                 StartAfterKnifeWarmup();
-                DrawSideSelection();
+                //DrawSideSelection();
 
                 return HookResult.Changed;
             }, HookMode.Pre);
