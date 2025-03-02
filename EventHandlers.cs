@@ -62,7 +62,6 @@ public partial class MatchZy
                 }
 
                 if (GetRealPlayersCount() == matchConfig.MinPlayersToReady * 2) {
-                    checkif3v3();
                     Log("11111111111111111111111111111111111111111111111111111111111");
                     Log(matchConfig.MinPlayersToReady.ToString());
                     Log(GetRealPlayersCount().ToString());

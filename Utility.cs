@@ -314,13 +314,6 @@ namespace MatchZy
             });
         }
 
-        private void checkif3v3()
-        {
-            if (GetRealPlayersCount() == 6) {
-                Server.ExecuteCommand("css_restrictweapon weapon_ssg08 limit 3");
-            }
-        }
-
         private void StartLive()
         {
             SetupLiveFlagsAndCfg();
