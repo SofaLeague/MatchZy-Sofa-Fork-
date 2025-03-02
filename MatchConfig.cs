@@ -53,7 +53,7 @@ namespace MatchZy
         public bool Scrim { get; set; } = false;
 
         [JsonPropertyName("get5_AFKTime")]
-        public int AFKTime { get; set; } = 300;
+        public int AFKTime { get; set; } = 360;
 
         [JsonPropertyName("get5_side_selection_time")]
         public int sideselectiontime { get; set; } = 10;

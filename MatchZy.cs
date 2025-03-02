@@ -95,8 +95,8 @@ namespace MatchZy
             SideSelectionTimer = AddTimer(matchConfig.sideselectiontime, () => 
             {
                 if (isSideSelectionPhase) {
-                    PrintToAllChat(Localizer["matchzy.knife.drawsideselection", knifeWinnerName]);
-                    StartLive();
+                    PrintToAllChat($"{ChatColors.Green}{knifeWinnerName}{ChatColors.Default} tied the match");
+                    EndSeries(null, 5, 0, 0);
                 }
             });
         }

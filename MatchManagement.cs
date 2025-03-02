@@ -612,6 +612,7 @@ namespace MatchZy
 
         public void EndSeries(string? winnerName, int restartDelay, int t1score, int t2score)
         {
+            Server.ExecuteCommand("css_restrictweapon weapon_ssg08 limit 2");
             long matchId = liveMatchId;
             (int team1Score, int team2Score) = (matchzyTeam1.seriesScore, matchzyTeam2.seriesScore);
             if (winnerName == null)
