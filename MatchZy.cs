@@ -140,6 +140,8 @@ namespace MatchZy
                 { ".unpause", OnUnpauseCommand },
                 { ".up", OnUnpauseCommand },
                 { ".forcepause", OnForcePauseCommand },
+                { ".kill", OnKillCommand },
+                { ".suicide", OnKillCommand },
                 { ".fp", OnForcePauseCommand },
                 { ".forceunpause", OnForceUnpauseCommand },
                 { ".fup", OnForceUnpauseCommand },
