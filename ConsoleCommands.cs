@@ -295,18 +295,18 @@ namespace MatchZy
         
         [ConsoleCommand("kill", "kill")]
         [ConsoleCommand("suicide", "kill")]
-        private void OnKillCommand(CCSPlayerController? ply, CommandInfo? info)
+        private void OnKillCommand(CCSPlayerController? player, CommandInfo? info)
         {
-            if (ply == null || !ply.IsValid || !ply.PawnIsAlive || !ply.PlayerPawn.IsValid)
+            if (player == null || !player.IsValid || !player.PawnIsAlive || !player.PlayerPawn.IsValid)
                 return;
 
-            if (!matchConfig.allowkill)
+            if (!killCommandEnabled.Value)
             {
-                ply.PrintToChat("disabled");
+                player.PrintToChat("disabled");
                 return;
             }
 
-            ply.PlayerPawn.Value.CommitSuicide(true, false);
+            player.PlayerPawn.Value.CommitSuicide(true, false);
         }
 
         [ConsoleCommand("css_skipveto", "Skips the current veto phase")]
