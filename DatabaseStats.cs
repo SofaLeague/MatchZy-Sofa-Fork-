@@ -64,7 +64,7 @@ namespace MatchZy
                 else if (config != null && databaseType == DatabaseType.MySQL)
                 {
                     string connectionString = $"Server={config.MySqlHost};Port={config.MySqlPort};Database={config.MySqlDatabase};User Id={config.MySqlUsername};Password={config.MySqlPassword};";
-                    connection = new MySqlConnection(connectionString);           
+                    connection = new MySqlConnection(connectionString);          
                 }
                 else
                 {

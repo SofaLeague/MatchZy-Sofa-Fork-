@@ -372,7 +372,7 @@ public partial class MatchZy
         return HookResult.Continue;
     }
 
-    public HookResult EventDecoyDetonateHandler(EventDecoyDetonate @event, GameEventInfo info)
+    public HookResult EventDecoyDetonateHandler(EventDecoyStarted @event, GameEventInfo info)
     {
         if (!isPractice || isDryRun) return HookResult.Continue;
         CCSPlayerController? player = @event.Userid;

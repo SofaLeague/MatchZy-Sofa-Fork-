@@ -317,7 +317,7 @@ namespace MatchZy
         private void StartLive()
         {
             SetupLiveFlagsAndCfg();
-            StartDemoRecording();
+     //       StartDemoRecording();
 
             // Storing 0-0 score backup file as lastBackupFileName, so that .stop functions properly in first round.
           //  lastBackupFileName = $"matchzy_{liveMatchId}_{matchConfig.CurrentMapNumber}_round00.txt";
@@ -789,7 +789,7 @@ namespace MatchZy
             }
             else
             {
-                StartDemoRecording();
+              //  StartDemoRecording();
                 StartLive();
             }
             if (showCreditsOnMatchStart.Value)
