@@ -1318,7 +1318,22 @@ namespace MatchZy
             RemoveSpawnBeams();
             Server.PrintToChatAll($"{chatPrefix} Match mode loaded!");
         }
-
+        
+        private void scouts()
+        {
+            AddTimer(5.0f, () =>
+            {
+                int gameMode = GetGameMode();
+                if (gameMode == 2)
+                {
+                    Server.ExecuteCommand("css_restrictweapon weapon_ssg08 limit -1");
+                }
+                if (gameMode != 2)
+                {
+                    Server.ExecuteCommand("css_restrictweapon weapon_ssg08 limit 2");
+                }
+            });
+        }
         private void ExecLiveCFG()
         {
             int gameMode = GetGameMode();
@@ -1331,6 +1346,8 @@ namespace MatchZy
                 absolutePath = Path.Join(Server.GameDirectory + "/csgo/cfg", liveWingmanCfgPath);
                 cfgPath = liveWingmanCfgPath;
             }
+
+            scouts();
 
             // We try to find the CFG in the cfg folder, if it is not there then we execute the default CFG.
             if (File.Exists(absolutePath))
