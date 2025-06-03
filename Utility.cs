@@ -284,8 +284,10 @@ namespace MatchZy
             knifeWinnerName = knifeWinner == 3 ? reverseTeamSides["CT"].teamName : reverseTeamSides["TERRORIST"].teamName;
             ShowDamageInfo();
             PrintToAllChat(Localizer["matchzy.knife.sidedecisionpending", knifeWinnerName]);
-            // Server.PrintToChatAll($"{chatPrefix} {ChatColors.Green}{knifeWinnerName}{ChatColors.Default} Won the knife. Waiting for them to type {ChatColors.Green}.stay{ChatColors.Default} or {ChatColors.Green}.switch{ChatColors.Default}");
             sideSelectionMessageTimer ??= AddTimer(chatTimerDelay, SendSideSelectionMessage, TimerFlags.REPEAT);
+            
+            // Запускаем таймер для автовыбора стороны
+            DrawSideSelection();
         }
 
         private void SetLiveFlags()
@@ -386,6 +388,7 @@ namespace MatchZy
                     Server.ExecuteCommand($"tv_stoprecord");
                     isDemoRecording = false;
                 }
+                OnMatchEnd();
                 // Reset match data
                 matchStarted = false;
                 readyAvailable = true;
@@ -807,11 +810,10 @@ namespace MatchZy
         }
 
         public void HandleClanTags()
-        {
+        { 
             // Currently it is not possible to keep updating player tags while in warmup without restarting the match
             // Hence returning from here until we find a proper solution
-            return;
-
+            /*
             if (readyAvailable && !matchStarted)
             {
                 foreach (var key in playerData.Keys)
@@ -841,7 +843,7 @@ namespace MatchZy
                     }
                     Server.PrintToChatAll($"PlayerName: {playerData[key].PlayerName} Clan: {playerData[key].Clan}");
                 }
-            }
+            } */
         }
 
         private void HandleMatchEnd()
@@ -889,7 +891,7 @@ namespace MatchZy
             {
                 await SendEventAsync(mapResultEvent);
                 await database.SetMapEndData(liveMatchId, currentMapNumber, winnerName, t1score, t2score, team1SeriesScore, team2SeriesScore);
-                await database.WritePlayerStatsToCsv(statsPath, liveMatchId, currentMapNumber);
+              //  await database.WritePlayerStatsToCsv(statsPath, liveMatchId, currentMapNumber);
             });
 
             // If a match is not setup, it was supposed to be a pug/scrim with 1 map
@@ -1047,7 +1049,7 @@ namespace MatchZy
             if (!matchStarted) return;
             playerHasTakenDamage = false;
             HandleCoaches();
-            CreateMatchZyRoundDataBackup();
+          //  CreateMatchZyRoundDataBackup();
             InitPlayerDamageInfo();
             UpdateHostname();
         }
@@ -1091,12 +1093,12 @@ namespace MatchZy
                         await database.UpdatePlayerStatsAsync(matchId, currentMapNumber, playerStatsDictionary);
                         await database.UpdateMapStatsAsync(matchId, currentMapNumber, t1score, t2score);
                     });
-
+                    /*
                     //string round = GetRoundNumer().ToString("D2");
                     //lastBackupFileName = $"matchzy_{liveMatchId}_{matchConfig.CurrentMapNumber}_round{round}.txt";
                     //lastMatchZyBackupFileName = $"matchzy_{liveMatchId}_{matchConfig.CurrentMapNumber}_round{round}.json";
                     Log($"[HandlePostRoundEndEvent] Setting lastBackupFileName to {lastBackupFileName} and lastMatchZyBackupFileName to {lastMatchZyBackupFileName}");
-
+                    */
                     // One of the team did not use .stop command hence display the proper message after the round has ended.
                     if (stopData["ct"] && !stopData["t"])
                     {
@@ -1417,7 +1419,7 @@ namespace MatchZy
         }
 
         public void LoadClientNames()
-        {
+        { 
             string namesFileName = "Match_" + liveMatchId.ToString() + ".ini";
             string namesFilePath = Server.GameDirectory + "/csgo/MatchZyPlayerNames/" + namesFileName;
             string? directoryPath = Path.GetDirectoryName(namesFilePath);

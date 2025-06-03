@@ -91,13 +91,45 @@ namespace MatchZy
         public void DrawSideSelection()
         {
             if (!isSideSelectionPhase) return;
+            
             SideSelectionTimer?.Kill();
             SideSelectionTimer = null;
-            SideSelectionTimer = AddTimer(matchConfig.sideselectiontime, () => 
+            
+
+            SideSelectionTimer = AddTimer(60.0f, () => 
             {
+
+                Server.NextFrame(() => 
+                {
+                    if (!isSideSelectionPhase) return;
+                    
+                    PrintToAllChat(Localizer["matchzy.knife.decidedtostay", knifeWinnerName]);
+                    StartLive();
+                });
+            });
+            
+            // Таймеры для оповещений - они безопасны, так как только выводят сообщения
+            AddTimer(20.0f, () => {
                 if (isSideSelectionPhase) {
-                    PrintToAllChat($"{ChatColors.Green}{knifeWinnerName}{ChatColors.Default} tied the match");
-                    EndSeries(null, 5, 0, 0);
+                    Server.NextFrame(() => {
+                        PrintToAllChat($"{ChatColors.Green}{knifeWinnerName}{ChatColors.Default} has 40 seconds left to choose side!");
+                    });
+                }
+            });
+            
+            AddTimer(40.0f, () => {
+                if (isSideSelectionPhase) {
+                    Server.NextFrame(() => {
+                        PrintToAllChat($"{ChatColors.Green}{knifeWinnerName}{ChatColors.Default} has 20 seconds left to choose side!");
+                    });
+                }
+            });
+            
+            AddTimer(50.0f, () => {
+                if (isSideSelectionPhase) {
+                    Server.NextFrame(() => {
+                        PrintToAllChat($"{ChatColors.Green}{knifeWinnerName}{ChatColors.Default} has 10 seconds left to choose side!");
+                    });
                 }
             });
         }
@@ -106,7 +138,7 @@ namespace MatchZy
             
             LoadAdmins();
 
-            database.InitializeDatabase(ModuleDirectory);
+           // database.InitializeDatabase(ModuleDirectory);
 
             // This sets default config ConVars
             Server.ExecuteCommand("execifexists MatchZy/config.cfg");
@@ -141,8 +173,6 @@ namespace MatchZy
                 { ".unpause", OnUnpauseCommand },
                 { ".up", OnUnpauseCommand },
                 { ".forcepause", OnForcePauseCommand },
-                { ".kill", OnKillCommand },
-                { ".suicide", OnKillCommand },
                 { ".fp", OnForcePauseCommand },
                 { ".forceunpause", OnForceUnpauseCommand },
                 { ".fup", OnForceUnpauseCommand },
@@ -220,7 +250,9 @@ namespace MatchZy
                 { ".bestctspawn", OnBestCTSpawnCommand },
                 { ".worstctspawn", OnWorstCTSpawnCommand },
                 { ".besttspawn", OnBestTSpawnCommand },
-                { ".worsttspawn", OnWorstTSpawnCommand }
+                { ".worsttspawn", OnWorstTSpawnCommand },
+                { ".ffw", OnFFWCommand },
+                { ".gg", OnGGCommand }
             };
 
             RegisterEventHandler<EventPlayerConnectFull>(EventPlayerConnectFullHandler);

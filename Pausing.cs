@@ -10,7 +10,7 @@ public partial class MatchZy
     public int lastTechPauseDuration = 0;
 
     public void TechPause(CCSPlayerController? player, CommandInfo? command)
-    {
+    { /*
         // Tech Pause is WIP
         return;
 
@@ -63,6 +63,6 @@ public partial class MatchZy
         {
             PrintToPlayerChat(player, Localizer["matchzy.pause.notechpauseleft", playerTeam.teamName]);
             return;
-        }
-    }
+        } */
+    } 
 }

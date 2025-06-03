@@ -32,9 +32,9 @@ namespace MatchZy
 
 
         public void SetupRoundBackupFile()
-        {
+        { /*
             string backupFilePrefix = $"matchzy_{liveMatchId}_{matchConfig.CurrentMapNumber}";
-            Server.ExecuteCommand($"mp_backup_round_file {backupFilePrefix}");
+            Server.ExecuteCommand($"mp_backup_round_file {backupFilePrefix}"); */
         }
         [ConsoleCommand("css_stop", "Restore the backup of the current round (Both teams need to type .stop to restore the current round)")]
         public void OnStopCommand(CCSPlayerController? player, CommandInfo? command)
@@ -235,7 +235,6 @@ namespace MatchZy
             }
 
             var gameRules = GetGameRules();
-            bool liveSetupRequired = false;
 
             // We set active timeouts to false so that timeout does not start after the round has been restored.
             // This is to prevent any buggish behaviour with timeouts (like incorrect timeout used showing, or force-unpausing the match once timeout ends)
@@ -332,7 +331,7 @@ namespace MatchZy
                     }
                     else
                     {
-                        liveSetupRequired = true;
+                       // liveSetupRequired = true;
                     }
                 }
                 if (backupData.TryGetValue("TerroristTimeOuts", out var terroristTimeouts))
@@ -393,7 +392,7 @@ namespace MatchZy
 
         public void CreateMatchZyRoundDataBackup()
         {
-            Log($"[CreateMatchZyRoundDataBackup] isRoundRestoring: {isRoundRestoring} isMatchLive: {isMatchLive}");
+           /* Log($"[CreateMatchZyRoundDataBackup] isRoundRestoring: {isRoundRestoring} isMatchLive: {isMatchLive}");
             if (!isMatchLive || isRoundRestoring) return;
             try
             {
@@ -459,7 +458,7 @@ namespace MatchZy
             catch (Exception e)
             {
                 Log($"[CreateMatchZyRoundDataBackup FATAL] Error creating the JSON file: {e.Message}");
-            }
+            } */
         }
 
         public List<string> GetBackups(string matchID)

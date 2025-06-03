@@ -72,12 +72,16 @@ public partial class MatchZy
                 }
             }
 
+            if (ffwActive)
+            {
+                CheckFFWStatus();
+            }
 
             
             return HookResult.Continue;
 
         }
-        catch (Exception e)
+        catch (Exception)
         {
           //  Log($"[EventPlayerConnectFull FATAL] An error occurred: {e.Message}");
             return HookResult.Continue;
@@ -118,6 +122,16 @@ public partial class MatchZy
                 });
             }
 
+            if (userId != 0 && player != null)
+            {
+                var team = player.Team;
+                var playerTeam = player!.Team;
+                if (team == CsTeam.CounterTerrorist || team == CsTeam.Terrorist)
+                {
+                    ggVotes[playerTeam].Remove(player.UserId.Value);
+                }
+            }
+
 
             if (playerReadyStatus.ContainsKey(userId))
             {
@@ -125,19 +139,6 @@ public partial class MatchZy
                 connectedPlayers--;
             }
             playerData.Remove(userId);
-
-            if (matchzyTeam1.coach.Contains(player))
-            {
-                matchzyTeam1.coach.Remove(player);
-                SetPlayerVisible(player);
-                player.Clan = "";
-            }
-            else if (matchzyTeam2.coach.Contains(player))
-            {
-                matchzyTeam2.coach.Remove(player);
-                SetPlayerVisible(player);
-                player.Clan = "";
-            }
             noFlashList.Remove(userId);
             lastGrenadesData.Remove(userId);
             nadeSpecificLastGrenadeData.Remove(userId);

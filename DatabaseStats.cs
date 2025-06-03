@@ -12,19 +12,17 @@ using CsvHelper;
 using CsvHelper.Configuration;
 using MySqlConnector;
 
-
-
 namespace MatchZy
 {
     public class Database
     {
-        private IDbConnection connection;
+        private IDbConnection? connection;
 
         DatabaseConfig? config;
         public DatabaseType databaseType { get; set; }
 
         public void InitializeDatabase(string directory)
-        {
+        { /*
             ConnectDatabase(directory);
             try
             {
@@ -46,7 +44,7 @@ namespace MatchZy
             catch (Exception ex)
             {
                 Log($"[InitializeDatabase - FATAL] Database connection or table creation error: {ex.Message}");
-            }
+            } */
         }
 
         public void ConnectDatabase(string directory)
@@ -64,7 +62,7 @@ namespace MatchZy
                 else if (config != null && databaseType == DatabaseType.MySQL)
                 {
                     string connectionString = $"Server={config.MySqlHost};Port={config.MySqlPort};Database={config.MySqlDatabase};User Id={config.MySqlUsername};Password={config.MySqlPassword};";
-                    connection = new MySqlConnection(connectionString);          
+                    connection = new MySqlConnection(connectionString);
                 }
                 else
                 {
@@ -72,16 +70,21 @@ namespace MatchZy
                     connection = new SqliteConnection($"Data Source={Path.Join(directory, "matchzy.db")}");
                     databaseType = DatabaseType.SQLite;
                 }
-            } 
+            }
             catch (Exception ex)
             {
                 Log($"[InitializeDatabase - FATAL] Database connection error: {ex.Message}");
             }
-
         }
 
         public void CreateRequiredTablesSQLite()
         {
+            if (connection == null)
+            {
+                Log("[CreateRequiredTablesSQLite] Database connection is not initialized");
+                return;
+            }
+
             connection.Execute($@"
             CREATE TABLE IF NOT EXISTS matchzy_stats_matches (
                 matchid INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -156,6 +159,12 @@ namespace MatchZy
 
         public void CreateRequiredTablesSQL()
         {
+            if (connection == null)
+            {
+                Log("[CreateRequiredTablesSQL] Database connection is not initialized");
+                return;
+            }
+
             connection.Execute($@"
                 CREATE TABLE IF NOT EXISTS matchzy_stats_matches (
                     matchid INT PRIMARY KEY AUTO_INCREMENT,
@@ -169,7 +178,7 @@ namespace MatchZy
                     team2_score INT NOT NULL DEFAULT 0,
                     server_ip VARCHAR(255) NOT NULL DEFAULT '0'
                 )");
-                
+
             connection.Execute($@"
             CREATE TABLE IF NOT EXISTS matchzy_stats_maps (
                 matchid INT NOT NULL,
@@ -231,6 +240,12 @@ namespace MatchZy
 
         public long InitMatch(string team1name, string team2name, string serverIp, bool isMatchSetup, long liveMatchId, int mapNumber, string seriesType)
         {
+            if (connection == null)
+            {
+                Log("[InitMatch] Database connection is not initialized");
+                return liveMatchId;
+            }
+
             try
             {
                 string mapName = Server.MapName;
@@ -284,7 +299,14 @@ namespace MatchZy
             }
         }
 
-        public void UpdateTeamData(int matchId, string team1name, string team2name) {
+        public void UpdateTeamData(int matchId, string team1name, string team2name)
+        {
+            if (connection == null)
+            {
+                Log("[UpdateTeamData] Database connection is not initialized");
+                return;
+            }
+
             try
             {
                 connection.Execute(@"
@@ -303,6 +325,12 @@ namespace MatchZy
 
         public async Task SetMapEndData(long matchId, int mapNumber, string winnerName, int t1score, int t2score, int team1SeriesScore, int team2SeriesScore)
         {
+            if (connection == null)
+            {
+                Log("[SetMapEndData] Database connection is not initialized");
+                return;
+            }
+
             try
             {
                 string dateTimeExpression = (connection is SqliteConnection) ? "datetime('now')" : "NOW()";
@@ -326,11 +354,17 @@ namespace MatchZy
             catch (Exception ex)
             {
                 Log($"[SetMapEndData - FATAL] Error updating data of matchId: {matchId} mapNumber: {mapNumber} [ERROR]: {ex.Message}");
-            } 
+            }
         }
 
         public async Task SetMatchEndData(long matchId, string winnerName, int t1score, int t2score)
         {
+            if (connection == null)
+            {
+                Log("[SetMatchEndData] Database connection is not initialized");
+                return;
+            }
+
             try
             {
                 string dateTimeExpression = (connection is SqliteConnection) ? "datetime('now')" : "NOW()";
@@ -352,6 +386,12 @@ namespace MatchZy
 
         public async Task UpdateMapStatsAsync(long matchId, int mapNumber, int t1score, int t2score)
         {
+            if (connection == null)
+            {
+                Log("[UpdateMapStatsAsync] Database connection is not initialized");
+                return;
+            }
+
             try
             {
                 string sqlQuery = $@"
@@ -369,6 +409,12 @@ namespace MatchZy
 
         public async Task UpdatePlayerStatsAsync(long matchId, int mapNumber, Dictionary<ulong, Dictionary<string, object>> playerStatsDictionary)
         {
+            if (connection == null)
+            {
+                Log("[UpdatePlayerStatsAsync] Database connection is not initialized");
+                return;
+            }
+
             try
             {
                 foreach (ulong steamid64 in playerStatsDictionary.Keys)
@@ -479,7 +525,7 @@ namespace MatchZy
             }
         }
 
-        public async Task WritePlayerStatsToCsv(string filePath, long matchId, int mapNumber)
+      /*  public async Task WritePlayerStatsToCsv(string filePath, long matchId, int mapNumber)
         {
             try {
                 string csvFilePath = $"{filePath}/match_data_map{mapNumber}_{matchId}.csv";
@@ -526,7 +572,7 @@ namespace MatchZy
                 Log($"[WritePlayerStatsToCsv - FATAL] Error writing data: {ex.Message}");
             }
 
-        }
+        } */
 
         private void CreateDefaultConfigFile(string configFile)
         {
@@ -569,7 +615,7 @@ namespace MatchZy
                 } else {
                     databaseType = DatabaseType.SQLite;
                 }
-                
+
             }
             catch (JsonException ex)
             {
@@ -599,5 +645,4 @@ namespace MatchZy
         public string? MySqlPassword { get; set; }
         public int? MySqlPort { get; set; }
     }
-
 }

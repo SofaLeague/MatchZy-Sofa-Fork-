@@ -126,6 +126,8 @@ namespace MatchZy
             Log($"[!stay command] {player.UserId}, TeamNum: {player.TeamNum}, knifeWinner: {knifeWinner}, isSideSelectionPhase: {isSideSelectionPhase}");
             if (player.TeamNum == knifeWinner)
             {
+                SideSelectionTimer?.Kill();
+                SideSelectionTimer = null;
                 PrintToAllChat(Localizer["matchzy.knife.decidedtostay", knifeWinnerName]);
                 // Server.PrintToChatAll($"{chatPrefix} {ChatColors.Green}{knifeWinnerName}{ChatColors.Default} has decided to stay!");
                 StartLive();
@@ -142,12 +144,68 @@ namespace MatchZy
 
             if (player.TeamNum == knifeWinner)
             {
+                SideSelectionTimer?.Kill();
+                SideSelectionTimer = null;
                 Server.ExecuteCommand("mp_swapteams;");
                 SwapSidesInTeamData(true);
                 PrintToAllChat(Localizer["matchzy.knife.decidedtoswitch", knifeWinnerName]);
                 // Server.PrintToChatAll($"{chatPrefix} {ChatColors.Green}{knifeWinnerName}{ChatColors.Default} has decided to switch!");
                 StartLive();
             }
+        }
+
+        [ConsoleCommand("css_t", "Switches team to Terrorist")]
+        public void OnTCommand(CCSPlayerController? player, CommandInfo? command)
+        {
+            if (player == null || player.UserId == null) return;
+
+            if (isVeto)
+            {
+                HandleSideChoice(CsTeam.Terrorist, player.UserId.Value);
+                return;
+            }
+
+            if (isSideSelectionPhase && player.TeamNum == knifeWinner)
+            {
+                if (player.Team == CsTeam.Terrorist)
+                {
+                    OnTeamStay(player, command);
+                }
+                else
+                {
+                    OnTeamSwitch(player, command);
+                }
+            }
+
+            if (!isPractice) return;
+            SideSwitchCommand(player, CsTeam.Terrorist);
+        }
+
+        [ConsoleCommand("css_ct", "Switches team to Counter-Terrorist")]
+        public void OnCTCommand(CCSPlayerController? player, CommandInfo? command)
+        {
+            if (player == null || player.UserId == null) return;
+            if (isVeto)
+            {
+                HandleSideChoice(CsTeam.CounterTerrorist, player.UserId.Value);
+                return;
+            }
+
+            if (isSideSelectionPhase && player.TeamNum == knifeWinner)
+            {
+                if (player.Team == CsTeam.CounterTerrorist)
+                {
+                    OnTeamStay(player, command);
+                }
+                else
+                {
+                    OnTeamSwitch(player, command);
+                }
+                return;
+            }
+
+            if (!isPractice) return;
+            SideSwitchCommand(player, CsTeam.CounterTerrorist);
         }
 
         [ConsoleCommand("css_tech", "Pause the match")]
@@ -291,22 +349,6 @@ namespace MatchZy
                     }
                 }
             }
-        }
-        
-        [ConsoleCommand("kill", "kill")]
-        [ConsoleCommand("suicide", "kill")]
-        private void OnKillCommand(CCSPlayerController? player, CommandInfo? info)
-        {
-            if (player == null || !player.IsValid || !player.PawnIsAlive || !player.PlayerPawn.IsValid)
-                return;
-
-            if (!killCommandEnabled.Value)
-            {
-                player.PrintToChat("disabled");
-                return;
-            }
-
-            player.PlayerPawn.Value.CommitSuicide(true, false);
         }
 
         [ConsoleCommand("css_skipveto", "Skips the current veto phase")]
