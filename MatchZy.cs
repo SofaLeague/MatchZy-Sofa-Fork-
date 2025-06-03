@@ -15,7 +15,7 @@ namespace MatchZy
     {
 
         public override string ModuleName => "MatchZy [Sofa Fork]";
-        public override string ModuleVersion => "0.8.10";
+        public override string ModuleVersion => "0.8.11";
 
         public override string ModuleAuthor => "WD- (https://github.com/shobhit-pathak/)";
 
@@ -251,7 +251,6 @@ namespace MatchZy
                 { ".worstctspawn", OnWorstCTSpawnCommand },
                 { ".besttspawn", OnBestTSpawnCommand },
                 { ".worsttspawn", OnWorstTSpawnCommand },
-                { ".ffw", OnFFWCommand },
                 { ".gg", OnGGCommand }
             };
 

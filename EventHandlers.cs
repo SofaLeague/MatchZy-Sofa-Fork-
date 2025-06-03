@@ -89,68 +89,75 @@ public partial class MatchZy
 
     }
     public HookResult EventPlayerDisconnectHandler(EventPlayerDisconnect @event, GameEventInfo info)
-    {
-        try
         {
-            CCSPlayerController? player = @event.Userid;
-
-            if (!IsPlayerValid(player)) return HookResult.Continue;
-            if (!player!.UserId.HasValue) return HookResult.Continue;
-            int userId = player.UserId.Value;
-
-            if (GetRealPlayersCount() == 0) 
+            try
             {
-                if (!matchStarted) 
-                    return HookResult.Continue;
+                CCSPlayerController? player = @event.Userid;
 
-                AFKTime?.Kill();
-                AFKTime = null;
+                if (!IsPlayerValid(player)) return HookResult.Continue;
+                if (!player!.UserId.HasValue) return HookResult.Continue;
+                int userId = player.UserId.Value;
 
-                long matchidforafk = liveMatchId;
-
-                AFKTime = AddTimer(matchConfig.AFKTime, () => 
+                if (GetRealPlayersCount() == 0) 
                 {
-                    if (GetRealPlayersCount() == 0 && matchStarted && matchidforafk == liveMatchId) 
-                    {
-                        EndSeries(null, 5, 0, 0);
-                        Log("Due to AFK - Game ended due to inactivity.");
-                    }
-                    else
-                    {
-                        return;
-                    }
-                });
-            }
+                    if (!matchStarted) 
+                        return HookResult.Continue;
 
-            if (userId != 0 && player != null)
-            {
-                var team = player.Team;
-                var playerTeam = player!.Team;
-                if (team == CsTeam.CounterTerrorist || team == CsTeam.Terrorist)
-                {
-                    ggVotes[playerTeam].Remove(player.UserId.Value);
+                    AFKTime?.Kill();
+                    AFKTime = null;
+
+                    long matchidforafk = liveMatchId;
+
+                    AFKTime = AddTimer(matchConfig.AFKTime, () => 
+                    {
+                        if (GetRealPlayersCount() == 0 && matchStarted && matchidforafk == liveMatchId) 
+                        {
+                            EndSeries(null, 5, 0, 0);
+                            Log("Due to AFK - Game ended due to inactivity.");
+                        }
+                        else
+                        {
+                            return;
+                        }
+                    });
                 }
+
+                if (userId != 0 && player != null)
+                {
+                    var team = player.Team;
+                    var playerTeam = player!.Team;
+                    if (team == CsTeam.CounterTerrorist || team == CsTeam.Terrorist)
+                    {
+                        ggVotes[playerTeam].Remove(player.UserId.Value);
+                    }
+                }
+
+                if (playerReadyStatus.ContainsKey(userId))
+                {
+                    playerReadyStatus.Remove(userId);
+                    connectedPlayers--;
+                }
+                playerData.Remove(userId);
+                noFlashList.Remove(userId);
+                lastGrenadesData.Remove(userId);
+                nadeSpecificLastGrenadeData.Remove(userId);
+                
+                // Проверяем FFW после отключения игрока
+                if (isMatchLive && !ffwActive)
+                {
+                    AddTimer(2.0f, () => {
+                        CheckForMissingTeams();
+                    });
+                }
+
+                return HookResult.Continue;
             }
-
-
-            if (playerReadyStatus.ContainsKey(userId))
+            catch (Exception e)
             {
-                playerReadyStatus.Remove(userId);
-                connectedPlayers--;
+                Log($"[EventPlayerDisconnect FATAL] An error occurred: {e.Message}");
+                return HookResult.Continue;
             }
-            playerData.Remove(userId);
-            noFlashList.Remove(userId);
-            lastGrenadesData.Remove(userId);
-            nadeSpecificLastGrenadeData.Remove(userId);
-
-            return HookResult.Continue;
         }
-        catch (Exception e)
-        {
-            Log($"[EventPlayerDisconnect FATAL] An error occurred: {e.Message}");
-            return HookResult.Continue;
-        }
-    }
 
     public HookResult EventCsWinPanelRoundHandler(EventCsWinPanelRound @event, GameEventInfo info)
     {
