@@ -95,30 +95,16 @@ namespace MatchZy
             SideSelectionTimer?.Kill();
             SideSelectionTimer = null;
             
-            // Таймер на 60 секунд
+
             SideSelectionTimer = AddTimer(60.0f, () => 
             {
-                // Используем Server.NextFrame для выполнения в основном потоке
+
                 Server.NextFrame(() => 
                 {
                     if (!isSideSelectionPhase) return;
                     
-                    // Случайный выбор стороны
-                    Random random = new();
-                    bool stay = random.Next(0, 2) == 0;
-                    
-                    if (stay)
-                    {
-                        PrintToAllChat(Localizer["matchzy.knife.decidedtostay", knifeWinnerName]);
-                        StartLive();
-                    }
-                    else
-                    {
-                        Server.ExecuteCommand("mp_swapteams;");
-                        SwapSidesInTeamData(true);
-                        PrintToAllChat(Localizer["matchzy.knife.decidedtoswitch", knifeWinnerName]);
-                        StartLive();
-                    }
+                    PrintToAllChat(Localizer["matchzy.knife.decidedtostay", knifeWinnerName]);
+                    StartLive();
                 });
             });
             
@@ -126,7 +112,7 @@ namespace MatchZy
             AddTimer(20.0f, () => {
                 if (isSideSelectionPhase) {
                     Server.NextFrame(() => {
-                        PrintToAllChat($"{chatPrefix} {ChatColors.Green}{knifeWinnerName}{ChatColors.Default} has 40 seconds left to choose side!");
+                        PrintToAllChat($"{ChatColors.Green}{knifeWinnerName}{ChatColors.Default} has 40 seconds left to choose side!");
                     });
                 }
             });
@@ -134,7 +120,7 @@ namespace MatchZy
             AddTimer(40.0f, () => {
                 if (isSideSelectionPhase) {
                     Server.NextFrame(() => {
-                        PrintToAllChat($"{chatPrefix} {ChatColors.Green}{knifeWinnerName}{ChatColors.Default} has 20 seconds left to choose side!");
+                        PrintToAllChat($"{ChatColors.Green}{knifeWinnerName}{ChatColors.Default} has 20 seconds left to choose side!");
                     });
                 }
             });
@@ -142,7 +128,7 @@ namespace MatchZy
             AddTimer(50.0f, () => {
                 if (isSideSelectionPhase) {
                     Server.NextFrame(() => {
-                        PrintToAllChat($"{chatPrefix} {ChatColors.Green}{knifeWinnerName}{ChatColors.Default} has 10 seconds left to choose side!");
+                        PrintToAllChat($"{ChatColors.Green}{knifeWinnerName}{ChatColors.Default} has 10 seconds left to choose side!");
                     });
                 }
             });
@@ -187,8 +173,6 @@ namespace MatchZy
                 { ".unpause", OnUnpauseCommand },
                 { ".up", OnUnpauseCommand },
                 { ".forcepause", OnForcePauseCommand },
-                { ".kill", OnKillCommand },
-                { ".suicide", OnKillCommand },
                 { ".fp", OnForcePauseCommand },
                 { ".forceunpause", OnForceUnpauseCommand },
                 { ".fup", OnForceUnpauseCommand },

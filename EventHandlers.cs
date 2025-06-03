@@ -81,7 +81,7 @@ public partial class MatchZy
             return HookResult.Continue;
 
         }
-        catch (Exception e)
+        catch (Exception)
         {
           //  Log($"[EventPlayerConnectFull FATAL] An error occurred: {e.Message}");
             return HookResult.Continue;
@@ -122,7 +122,7 @@ public partial class MatchZy
                 });
             }
 
-            if (userId != null && player != null)
+            if (userId != 0 && player != null)
             {
                 var team = player.Team;
                 var playerTeam = player!.Team;
@@ -139,19 +139,6 @@ public partial class MatchZy
                 connectedPlayers--;
             }
             playerData.Remove(userId);
-
-            if (matchzyTeam1.coach.Contains(player))
-            {
-                matchzyTeam1.coach.Remove(player);
-                SetPlayerVisible(player);
-                player.Clan = "";
-            }
-            else if (matchzyTeam2.coach.Contains(player))
-            {
-                matchzyTeam2.coach.Remove(player);
-                SetPlayerVisible(player);
-                player.Clan = "";
-            }
             noFlashList.Remove(userId);
             lastGrenadesData.Remove(userId);
             nadeSpecificLastGrenadeData.Remove(userId);

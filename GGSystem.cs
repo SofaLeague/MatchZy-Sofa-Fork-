@@ -40,11 +40,11 @@ namespace MatchZy
                 .Where(p => IsPlayerValid(p) && p.Team == playerTeam)
                 .ToList();
             
-            if (teamPlayers.Count != 5)
+          /*  if (teamPlayers.Count != 5)
             {
                 ReplyToUserCommand(player, $"GG vote requires exactly 5 players in the team! Current: {teamPlayers.Count}");
                 return;
-            }
+            } */
             
             // Добавляем голос игрока
             if (!player.UserId.HasValue) return;
@@ -56,8 +56,8 @@ namespace MatchZy
             }
             
             ggVotes[playerTeam].Add(player.UserId.Value);
-            
-            int votesNeeded = 4;
+
+            int votesNeeded = Math.Max(1, matchConfig.MinPlayersToReady - 1);
             int currentVotes = ggVotes[playerTeam].Count;
             
             string teamName = playerTeam == CsTeam.CounterTerrorist ? 

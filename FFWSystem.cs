@@ -81,7 +81,7 @@ namespace MatchZy
             
             string missingTeamName = GetTeamName(missingTeam);
             
-            PrintToAllChat($"{chatPrefix} FFW timer started! {missingTeamName} has 3 minutes to return!");
+            PrintToAllChat($"FFW timer started! {missingTeamName} has 3 minutes to return!");
             
             // Основной таймер на 3 минуты
             ffwTimer = AddTimer(180.0f, () => {
@@ -95,21 +95,21 @@ namespace MatchZy
             AddTimer(60.0f, () => {
                 if (ffwActive)
                 {
-                    PrintToAllChat($"{chatPrefix} {missingTeamName} has 2 minutes left to return!");
+                    PrintToAllChat($"{missingTeamName} has 2 minutes left to return!");
                 }
             });
             
             AddTimer(120.0f, () => {
                 if (ffwActive)
                 {
-                    PrintToAllChat($"{chatPrefix} {missingTeamName} has 1 minute left to return!");
+                    PrintToAllChat($"{missingTeamName} has 1 minute left to return!");
                 }
             });
             
             AddTimer(150.0f, () => {
                 if (ffwActive)
                 {
-                    PrintToAllChat($"{chatPrefix} {missingTeamName} has 30 seconds left to return!");
+                    PrintToAllChat($"{missingTeamName} has 30 seconds left to return!");
                 }
             });
         }
@@ -123,7 +123,7 @@ namespace MatchZy
             if (forfeit)
             {
                 string winnerName = GetTeamName(ffwRequestingTeam);
-                PrintToAllChat($"{chatPrefix} {GetTeamName(ffwMissingTeam)} failed to return! {winnerName} wins by forfeit!");
+                PrintToAllChat($" {GetTeamName(ffwMissingTeam)} failed to return! {winnerName} wins by forfeit!");
                 
                 // Завершаем матч
                 if (ffwRequestingTeam == CsTeam.CounterTerrorist)
@@ -137,7 +137,7 @@ namespace MatchZy
             }
             else
             {
-                PrintToAllChat($"{chatPrefix} FFW cancelled - player has returned!");
+                PrintToAllChat($"FFW cancelled - player has returned!");
             }
             
             ffwRequestingTeam = CsTeam.None;

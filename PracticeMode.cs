@@ -668,7 +668,7 @@ namespace MatchZy
                                     }
 
                                     // Extract description, if available
-                                    string lineupDesc = lineupInfo.ContainsKey("Desc") ? lineupInfo["Desc"] : null;
+                                    string lineupDesc = "iuoidjoijfjofkjo";
 
                                     // Print messages
                                     // ReplyToUserCommand(player, $"Lineup {ChatColors.Green}{nearestName}{ChatColors.Default} loaded successfully!");

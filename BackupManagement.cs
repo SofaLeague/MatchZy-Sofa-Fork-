@@ -235,7 +235,6 @@ namespace MatchZy
             }
 
             var gameRules = GetGameRules();
-            bool liveSetupRequired = false;
 
             // We set active timeouts to false so that timeout does not start after the round has been restored.
             // This is to prevent any buggish behaviour with timeouts (like incorrect timeout used showing, or force-unpausing the match once timeout ends)
@@ -332,7 +331,7 @@ namespace MatchZy
                     }
                     else
                     {
-                        liveSetupRequired = true;
+                       // liveSetupRequired = true;
                     }
                 }
                 if (backupData.TryGetValue("TerroristTimeOuts", out var terroristTimeouts))

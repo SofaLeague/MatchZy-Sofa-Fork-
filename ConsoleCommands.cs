@@ -126,6 +126,8 @@ namespace MatchZy
             Log($"[!stay command] {player.UserId}, TeamNum: {player.TeamNum}, knifeWinner: {knifeWinner}, isSideSelectionPhase: {isSideSelectionPhase}");
             if (player.TeamNum == knifeWinner)
             {
+                SideSelectionTimer?.Kill();
+                SideSelectionTimer = null;
                 PrintToAllChat(Localizer["matchzy.knife.decidedtostay", knifeWinnerName]);
                 // Server.PrintToChatAll($"{chatPrefix} {ChatColors.Green}{knifeWinnerName}{ChatColors.Default} has decided to stay!");
                 StartLive();
@@ -142,6 +144,8 @@ namespace MatchZy
 
             if (player.TeamNum == knifeWinner)
             {
+                SideSelectionTimer?.Kill();
+                SideSelectionTimer = null;
                 Server.ExecuteCommand("mp_swapteams;");
                 SwapSidesInTeamData(true);
                 PrintToAllChat(Localizer["matchzy.knife.decidedtoswitch", knifeWinnerName]);
@@ -291,22 +295,6 @@ namespace MatchZy
                     }
                 }
             }
-        }
-        
-        [ConsoleCommand("kill", "kill")]
-        [ConsoleCommand("suicide", "kill")]
-        private void OnKillCommand(CCSPlayerController? player, CommandInfo? info)
-        {
-            if (player == null || !player.IsValid || !player.PawnIsAlive || !player.PlayerPawn.IsValid)
-                return;
-
-            if (!killCommandEnabled.Value)
-            {
-                player.PrintToChat("disabled");
-                return;
-            }
-
-            player.PlayerPawn.Value.CommitSuicide(true, false);
         }
 
         [ConsoleCommand("css_skipveto", "Skips the current veto phase")]
