@@ -1419,7 +1419,7 @@ namespace MatchZy
         }
 
         public void LoadClientNames()
-        { /*
+        { 
             string namesFileName = "Match_" + liveMatchId.ToString() + ".ini";
             string namesFilePath = Server.GameDirectory + "/csgo/MatchZyPlayerNames/" + namesFileName;
             string? directoryPath = Path.GetDirectoryName(namesFilePath);
@@ -1441,7 +1441,7 @@ namespace MatchZy
 
             sb.AppendLine("}");
             File.WriteAllText(namesFilePath, sb.ToString());
-            Server.ExecuteCommand($"sv_load_forced_client_names_file MatchZyPlayerNames/" + namesFileName); */
+            Server.ExecuteCommand($"sv_load_forced_client_names_file MatchZyPlayerNames/" + namesFileName);
         }
 
         public void WriteClientNamesInFile(StringBuilder sb, JToken? players)

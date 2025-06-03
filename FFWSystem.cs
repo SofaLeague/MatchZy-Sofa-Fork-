@@ -81,7 +81,7 @@ namespace MatchZy
             
             string missingTeamName = GetTeamName(missingTeam);
             
-            PrintToAllChat($"FFW timer started! {missingTeamName} has 3 minutes to return!");
+            PrintToAllChat($"FFW timer started! {ChatColors.Green}{missingTeamName}{ChatColors.Default} has {ChatColors.Green}3{ChatColors.Default} minutes to return!");
             
             // Основной таймер на 3 минуты
             ffwTimer = AddTimer(180.0f, () => {
@@ -95,21 +95,21 @@ namespace MatchZy
             AddTimer(60.0f, () => {
                 if (ffwActive)
                 {
-                    PrintToAllChat($"{missingTeamName} has 2 minutes left to return!");
+                    PrintToAllChat($"{ChatColors.Green}{missingTeamName}{ChatColors.Default} has {ChatColors.Green}2{ChatColors.Default} minutes left to return!");
                 }
             });
             
             AddTimer(120.0f, () => {
                 if (ffwActive)
                 {
-                    PrintToAllChat($"{missingTeamName} has 1 minute left to return!");
+                    PrintToAllChat($"{ChatColors.Green}{missingTeamName}{ChatColors.Default} has {ChatColors.Green}1{ChatColors.Default} minute left to return!");
                 }
             });
             
             AddTimer(150.0f, () => {
                 if (ffwActive)
                 {
-                    PrintToAllChat($"{missingTeamName} has 30 seconds left to return!");
+                    PrintToAllChat($"{ChatColors.Green}{missingTeamName}{ChatColors.Default} has {ChatColors.Green}30{ChatColors.Default} seconds left to return!");
                 }
             });
         }
@@ -123,7 +123,7 @@ namespace MatchZy
             if (forfeit)
             {
                 string winnerName = GetTeamName(ffwRequestingTeam);
-                PrintToAllChat($" {GetTeamName(ffwMissingTeam)} failed to return! {winnerName} wins by forfeit!");
+                PrintToAllChat($" {GetTeamName(ffwMissingTeam)} failed to return! {ChatColors.Green}{winnerName}{ChatColors.Default} wins by forfeit!");
                 
                 // Завершаем матч
                 if (ffwRequestingTeam == CsTeam.CounterTerrorist)
@@ -137,7 +137,7 @@ namespace MatchZy
             }
             else
             {
-                PrintToAllChat($"FFW cancelled - player has returned!");
+                PrintToAllChat($"{ChatColors.Green}{GetTeamName(ffwMissingTeam)}{ChatColors.Default} has returned!");
             }
             
             ffwRequestingTeam = CsTeam.None;

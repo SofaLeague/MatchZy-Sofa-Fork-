@@ -57,13 +57,18 @@ namespace MatchZy
             
             ggVotes[playerTeam].Add(player.UserId.Value);
 
-            int votesNeeded = Math.Max(1, matchConfig.MinPlayersToReady - 1);
+            int votesNeeded;
+                if (matchConfig.MinPlayersToReady == 1)
+                    votesNeeded = 1;
+                else
+                    votesNeeded = Math.Max(2, matchConfig.MinPlayersToReady - 1);
+
             int currentVotes = ggVotes[playerTeam].Count;
             
             string teamName = playerTeam == CsTeam.CounterTerrorist ? 
                 reverseTeamSides["CT"].teamName : reverseTeamSides["TERRORIST"].teamName;
             
-            PrintToAllChat($"{chatPrefix} {player.PlayerName} voted to surrender. ({currentVotes}/{votesNeeded} votes from {teamName})");
+            PrintToAllChat($"{ChatColors.Green}{player.PlayerName}{ChatColors.Default} voted to surrender. {ChatColors.Green}({currentVotes}/{votesNeeded}){ChatColors.Green} votes from {ChatColors.Green}{teamName}{ChatColors.Default}");
             
             // Проверяем, достаточно ли голосов
             if (currentVotes >= votesNeeded)
@@ -72,7 +77,7 @@ namespace MatchZy
                 string winnerTeam = playerTeam == CsTeam.CounterTerrorist ? 
                     reverseTeamSides["TERRORIST"].teamName : reverseTeamSides["CT"].teamName;
                 
-                PrintToAllChat($"{chatPrefix} {teamName} has surrendered! {winnerTeam} wins!");
+                PrintToAllChat($"{ChatColors.Green}{teamName}{ChatColors.Default} has surrendered! {ChatColors.Green}{winnerTeam}{ChatColors.Default} wins!");
                 
                 // Получаем текущий счет
                 (int t1score, int t2score) = GetTeamsScore();
@@ -96,7 +101,7 @@ namespace MatchZy
                 ggResetTimer = AddTimer(60.0f, () => {
                     if (ggVotes[playerTeam].Count > 0)
                     {
-                        PrintToAllChat($"{chatPrefix} GG vote for {teamName} has expired!");
+                        PrintToAllChat($"GG vote for {ChatColors.Green}{teamName}{ChatColors.Default} has expired!");
                         ggVotes[playerTeam].Clear();
                     }
                 });
