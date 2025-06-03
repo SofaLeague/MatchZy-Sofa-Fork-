@@ -9,27 +9,15 @@ namespace MatchZy
     public partial class MatchZy
     {
         private CounterStrikeSharp.API.Modules.Timers.Timer? ffwTimer = null;
+        private CounterStrikeSharp.API.Modules.Timers.Timer? ffwCheckTimer = null;
         private bool ffwActive = false;
         private CsTeam ffwRequestingTeam = CsTeam.None;
         private CsTeam ffwMissingTeam = CsTeam.None;
         
-        [ConsoleCommand("css_ffw", "Request forfeit win when opponent team is missing")]
-        public void OnFFWCommand(CCSPlayerController? player, CommandInfo? command)
+        // Автоматическая проверка отсутствующих команд
+        public void CheckForMissingTeams()
         {
-            if (!IsPlayerValid(player)) return;
-            if (!isMatchLive) 
-            {
-                ReplyToUserCommand(player, "FFW can only be used during a live match!");
-                return;
-            }
-            
-            // Проверяем, что команда игрока не пустая
-            var playerTeam = player!.Team;
-            if (playerTeam != CsTeam.Terrorist && playerTeam != CsTeam.CounterTerrorist)
-            {
-                ReplyToUserCommand(player, "You must be on a team to request FFW!");
-                return;
-            }
+            if (!isMatchLive || ffwActive) return;
             
             // Подсчитываем игроков в командах
             int ctCount = 0;
@@ -42,35 +30,15 @@ namespace MatchZy
                 else if (p.Team == CsTeam.Terrorist) tCount++;
             }
             
-            // Проверяем условия для FFW
-            bool canRequestFFW = false;
-            CsTeam missingTeam = CsTeam.None;
-            
-            if (playerTeam == CsTeam.CounterTerrorist && tCount == 0)
+            // Проверяем, есть ли команда без игроков
+            if (ctCount > 0 && tCount == 0)
             {
-                canRequestFFW = true;
-                missingTeam = CsTeam.Terrorist;
+                StartFFW(CsTeam.CounterTerrorist, CsTeam.Terrorist);
             }
-            else if (playerTeam == CsTeam.Terrorist && ctCount == 0)
+            else if (tCount > 0 && ctCount == 0)
             {
-                canRequestFFW = true;
-                missingTeam = CsTeam.CounterTerrorist;
+                StartFFW(CsTeam.Terrorist, CsTeam.CounterTerrorist);
             }
-            
-            if (!canRequestFFW)
-            {
-                ReplyToUserCommand(player, "Cannot request FFW - opponent team has players on the server!");
-                return;
-            }
-            
-            if (ffwActive)
-            {
-                ReplyToUserCommand(player, "FFW timer is already active!");
-                return;
-            }
-            
-            // Запускаем FFW таймер
-            StartFFW(playerTeam, missingTeam);
         }
         
         private void StartFFW(CsTeam requestingTeam, CsTeam missingTeam)
@@ -81,10 +49,10 @@ namespace MatchZy
             
             string missingTeamName = GetTeamName(missingTeam);
             
-            PrintToAllChat($"FFW timer started! {ChatColors.Green}{missingTeamName}{ChatColors.Default} has {ChatColors.Green}3{ChatColors.Default} minutes to return!");
+            PrintToAllChat($"FFW timer started! {ChatColors.Green}{missingTeamName}{ChatColors.Default} has {ChatColors.Green}4{ChatColors.Default} minutes to return!");
             
-            // Основной таймер на 3 минуты
-            ffwTimer = AddTimer(180.0f, () => {
+            // Основной таймер на 4 минуты
+            ffwTimer = AddTimer(240.0f, () => {
                 if (ffwActive)
                 {
                     EndFFW(true);
@@ -95,18 +63,25 @@ namespace MatchZy
             AddTimer(60.0f, () => {
                 if (ffwActive)
                 {
-                    PrintToAllChat($"{ChatColors.Green}{missingTeamName}{ChatColors.Default} has {ChatColors.Green}2{ChatColors.Default} minutes left to return!");
+                    PrintToAllChat($"{ChatColors.Green}{missingTeamName}{ChatColors.Default} has {ChatColors.Green}3{ChatColors.Default} minutes left to return!");
                 }
             });
             
             AddTimer(120.0f, () => {
                 if (ffwActive)
                 {
+                    PrintToAllChat($"{ChatColors.Green}{missingTeamName}{ChatColors.Default} has {ChatColors.Green}2{ChatColors.Default} minutes left to return!");
+                }
+            });
+            
+            AddTimer(180.0f, () => {
+                if (ffwActive)
+                {
                     PrintToAllChat($"{ChatColors.Green}{missingTeamName}{ChatColors.Default} has {ChatColors.Green}1{ChatColors.Default} minute left to return!");
                 }
             });
             
-            AddTimer(150.0f, () => {
+            AddTimer(210.0f, () => {
                 if (ffwActive)
                 {
                     PrintToAllChat($"{ChatColors.Green}{missingTeamName}{ChatColors.Default} has {ChatColors.Green}30{ChatColors.Default} seconds left to return!");
@@ -123,7 +98,10 @@ namespace MatchZy
             if (forfeit)
             {
                 string winnerName = GetTeamName(ffwRequestingTeam);
-                PrintToAllChat($" {GetTeamName(ffwMissingTeam)} failed to return! {ChatColors.Green}{winnerName}{ChatColors.Default} wins by forfeit!");
+                PrintToAllChat($"{GetTeamName(ffwMissingTeam)} failed to return! {ChatColors.Green}{winnerName}{ChatColors.Default} wins by forfeit!");
+                
+                // Останавливаем мониторинг перед завершением матча
+                StopFFWMonitoring();
                 
                 // Завершаем матч
                 if (ffwRequestingTeam == CsTeam.CounterTerrorist)
@@ -137,14 +115,14 @@ namespace MatchZy
             }
             else
             {
-                PrintToAllChat($"{ChatColors.Green}{GetTeamName(ffwMissingTeam)}{ChatColors.Default} has returned!");
+                PrintToAllChat($"{ChatColors.Green}{GetTeamName(ffwMissingTeam)}{ChatColors.Default} has returned! FFW cancelled.");
             }
             
             ffwRequestingTeam = CsTeam.None;
             ffwMissingTeam = CsTeam.None;
         }
         
-        private void CheckFFWStatus()
+        public void CheckFFWStatus()
         {
             if (!ffwActive) return;
             
@@ -171,6 +149,26 @@ namespace MatchZy
                 return reverseTeamSides["TERRORIST"].teamName;
             }
             return "Unknown Team";
+        }
+        
+        // Запуск периодической проверки FFW
+        public void StartFFWMonitoring()
+        {
+            if (ffwCheckTimer != null) return;
+            
+            ffwCheckTimer = AddTimer(5.0f, () => {
+                if (isMatchLive && !ffwActive)
+                {
+                    CheckForMissingTeams();
+                }
+            }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.REPEAT);
+        }
+        
+        // Остановка периодической проверки FFW
+        public void StopFFWMonitoring()
+        {
+            ffwCheckTimer?.Kill();
+            ffwCheckTimer = null;
         }
     }
 }

@@ -35,16 +35,53 @@ namespace MatchZy
                 return;
             }
             
+            // Получаем текущий счет
+            (int t1score, int t2score) = GetTeamsScore();
+            int playerTeamScore = 0;
+            int opponentTeamScore = 0;
+            string playerTeamName = "";
+            
+            if (playerTeam == CsTeam.CounterTerrorist)
+            {
+                if (reverseTeamSides["CT"] == matchzyTeam1)
+                {
+                    playerTeamScore = t1score;
+                    opponentTeamScore = t2score;
+                }
+                else
+                {
+                    playerTeamScore = t2score;
+                    opponentTeamScore = t1score;
+                }
+                playerTeamName = reverseTeamSides["CT"].teamName;
+            }
+            else if (playerTeam == CsTeam.Terrorist)
+            {
+                if (reverseTeamSides["TERRORIST"] == matchzyTeam1)
+                {
+                    playerTeamScore = t1score;
+                    opponentTeamScore = t2score;
+                }
+                else
+                {
+                    playerTeamScore = t2score;
+                    opponentTeamScore = t1score;
+                }
+                playerTeamName = reverseTeamSides["TERRORIST"].teamName;
+            }
+            
+            // Проверяем, что команда проигрывает на 6 или более раундов
+            int scoreDifference = opponentTeamScore - playerTeamScore;
+            if (scoreDifference < 6)
+            {
+                ReplyToUserCommand(player, $"Your team must be losing by at least 6 rounds to surrender! Current score: {playerTeamScore}-{opponentTeamScore}");
+                return;
+            }
+            
             // Подсчитываем общее количество игроков в команде
             var teamPlayers = playerData.Values
                 .Where(p => IsPlayerValid(p) && p.Team == playerTeam)
                 .ToList();
-            
-          /*  if (teamPlayers.Count != 5)
-            {
-                ReplyToUserCommand(player, $"GG vote requires exactly 5 players in the team! Current: {teamPlayers.Count}");
-                return;
-            } */
             
             // Добавляем голос игрока
             if (!player.UserId.HasValue) return;
@@ -58,17 +95,14 @@ namespace MatchZy
             ggVotes[playerTeam].Add(player.UserId.Value);
 
             int votesNeeded;
-                if (matchConfig.MinPlayersToReady == 1)
-                    votesNeeded = 1;
-                else
-                    votesNeeded = Math.Max(2, matchConfig.MinPlayersToReady - 1);
+            if (matchConfig.MinPlayersToReady == 1)
+                votesNeeded = 1;
+            else
+                votesNeeded = Math.Max(2, matchConfig.MinPlayersToReady - 1);
 
             int currentVotes = ggVotes[playerTeam].Count;
             
-            string teamName = playerTeam == CsTeam.CounterTerrorist ? 
-                reverseTeamSides["CT"].teamName : reverseTeamSides["TERRORIST"].teamName;
-            
-            PrintToAllChat($"{ChatColors.Green}{player.PlayerName}{ChatColors.Default} voted to surrender. {ChatColors.Green}({currentVotes}/{votesNeeded}){ChatColors.Green} votes from {ChatColors.Green}{teamName}{ChatColors.Default}");
+            PrintToAllChat($"{ChatColors.Green}{player.PlayerName}{ChatColors.Default} voted to surrender. {ChatColors.Green}({currentVotes}/{votesNeeded}){ChatColors.Default} votes from {ChatColors.Green}{playerTeamName}{ChatColors.Default} [Score: {playerTeamScore}-{opponentTeamScore}]");
             
             // Проверяем, достаточно ли голосов
             if (currentVotes >= votesNeeded)
@@ -77,19 +111,18 @@ namespace MatchZy
                 string winnerTeam = playerTeam == CsTeam.CounterTerrorist ? 
                     reverseTeamSides["TERRORIST"].teamName : reverseTeamSides["CT"].teamName;
                 
-                PrintToAllChat($"{ChatColors.Green}{teamName}{ChatColors.Default} has surrendered! {ChatColors.Green}{winnerTeam}{ChatColors.Default} wins!");
+                PrintToAllChat($"{ChatColors.Green}{playerTeamName}{ChatColors.Default} has surrendered! {ChatColors.Green}{winnerTeam}{ChatColors.Default} wins!");
                 
-                // Получаем текущий счет
-                (int t1score, int t2score) = GetTeamsScore();
-                
-                // Завершаем матч
+                // Завершаем матч с текущим счетом
                 if (playerTeam == CsTeam.CounterTerrorist)
                 {
-                    EndSeries(winnerTeam, 5, t2score, 16);
+                    // CT сдается, победа T
+                    EndSeries(reverseTeamSides["TERRORIST"].teamName, 5, opponentTeamScore, playerTeamScore);
                 }
                 else
                 {
-                    EndSeries(winnerTeam, 5, 16, t1score);
+                    // T сдается, победа CT
+                    EndSeries(reverseTeamSides["CT"].teamName, 5, playerTeamScore, opponentTeamScore);
                 }
                 
                 ResetGGVotes();
@@ -101,7 +134,7 @@ namespace MatchZy
                 ggResetTimer = AddTimer(60.0f, () => {
                     if (ggVotes[playerTeam].Count > 0)
                     {
-                        PrintToAllChat($"GG vote for {ChatColors.Green}{teamName}{ChatColors.Default} has expired!");
+                        PrintToAllChat($"GG vote for {ChatColors.Green}{playerTeamName}{ChatColors.Default} has expired!");
                         ggVotes[playerTeam].Clear();
                     }
                 });

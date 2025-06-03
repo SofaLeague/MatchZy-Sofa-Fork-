@@ -327,6 +327,9 @@ namespace MatchZy
 
             // This is to reload the map once it is over so that all flags are reset accordingly
             Server.ExecuteCommand("mp_match_end_restart true");
+            
+            // Запускаем мониторинг FFW
+            StartFFWMonitoring();
 
             PrintToAllChat($"{ChatColors.Olive}LIVE!");
             PrintToAllChat($"{ChatColors.Lime}LIVE!");
@@ -849,6 +852,9 @@ namespace MatchZy
         private void HandleMatchEnd()
         {
             if (!isMatchLive) return;
+
+
+            StopFFWMonitoring();
 
             // This ensures that the mp_match_restart_delay is not shorter than what is required for the GOTV recording to finish.
             // Ref: Get5

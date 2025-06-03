@@ -251,7 +251,6 @@ namespace MatchZy
                 { ".worstctspawn", OnWorstCTSpawnCommand },
                 { ".besttspawn", OnBestTSpawnCommand },
                 { ".worsttspawn", OnWorstTSpawnCommand },
-                { ".ffw", OnFFWCommand },
                 { ".gg", OnGGCommand }
             };
 
