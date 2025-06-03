@@ -480,7 +480,7 @@ namespace MatchZy
         }
 
         public async Task WritePlayerStatsToCsv(string filePath, long matchId, int mapNumber)
-        {
+        { /*
             try {
                 string csvFilePath = $"{filePath}/match_data_map{mapNumber}_{matchId}.csv";
                 string? directoryPath = Path.GetDirectoryName(csvFilePath);
@@ -524,7 +524,7 @@ namespace MatchZy
             catch (Exception ex)
             {
                 Log($"[WritePlayerStatsToCsv - FATAL] Error writing data: {ex.Message}");
-            }
+            } */
 
         }
 

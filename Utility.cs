@@ -1050,7 +1050,7 @@ namespace MatchZy
             if (!matchStarted) return;
             playerHasTakenDamage = false;
             HandleCoaches();
-            CreateMatchZyRoundDataBackup();
+          //  CreateMatchZyRoundDataBackup();
             InitPlayerDamageInfo();
             UpdateHostname();
         }
@@ -1094,12 +1094,12 @@ namespace MatchZy
                         await database.UpdatePlayerStatsAsync(matchId, currentMapNumber, playerStatsDictionary);
                         await database.UpdateMapStatsAsync(matchId, currentMapNumber, t1score, t2score);
                     });
-
+                    /*
                     //string round = GetRoundNumer().ToString("D2");
                     //lastBackupFileName = $"matchzy_{liveMatchId}_{matchConfig.CurrentMapNumber}_round{round}.txt";
                     //lastMatchZyBackupFileName = $"matchzy_{liveMatchId}_{matchConfig.CurrentMapNumber}_round{round}.json";
                     Log($"[HandlePostRoundEndEvent] Setting lastBackupFileName to {lastBackupFileName} and lastMatchZyBackupFileName to {lastMatchZyBackupFileName}");
-
+                    */
                     // One of the team did not use .stop command hence display the proper message after the round has ended.
                     if (stopData["ct"] && !stopData["t"])
                     {
@@ -1420,7 +1420,7 @@ namespace MatchZy
         }
 
         public void LoadClientNames()
-        {
+        { /*
             string namesFileName = "Match_" + liveMatchId.ToString() + ".ini";
             string namesFilePath = Server.GameDirectory + "/csgo/MatchZyPlayerNames/" + namesFileName;
             string? directoryPath = Path.GetDirectoryName(namesFilePath);
@@ -1442,7 +1442,7 @@ namespace MatchZy
 
             sb.AppendLine("}");
             File.WriteAllText(namesFilePath, sb.ToString());
-            Server.ExecuteCommand($"sv_load_forced_client_names_file MatchZyPlayerNames/" + namesFileName);
+            Server.ExecuteCommand($"sv_load_forced_client_names_file MatchZyPlayerNames/" + namesFileName); */
         }
 
         public void WriteClientNamesInFile(StringBuilder sb, JToken? players)
