@@ -91,13 +91,50 @@ namespace MatchZy
         public void DrawSideSelection()
         {
             if (!isSideSelectionPhase) return;
+            
             SideSelectionTimer?.Kill();
             SideSelectionTimer = null;
-            SideSelectionTimer = AddTimer(matchConfig.sideselectiontime, () => 
+            
+            // Таймер на 60 секунд
+            SideSelectionTimer = AddTimer(60.0f, () => 
             {
+                if (isSideSelectionPhase) 
+                {
+                    // Случайный выбор стороны
+                    Random random = new();
+                    bool stay = random.Next(0, 2) == 0;
+                    
+                    if (stay)
+                    {
+                        PrintToAllChat(Localizer["matchzy.knife.decidedtostay", knifeWinnerName]);
+                        StartLive();
+                    }
+                    else
+                    {
+                        Server.ExecuteCommand("mp_swapteams;");
+                        SwapSidesInTeamData(true);
+                        PrintToAllChat(Localizer["matchzy.knife.decidedtoswitch", knifeWinnerName]);
+                        StartLive();
+                    }
+                }
+            });
+            
+            // Добавляем таймер для оповещений каждые 20 секунд
+            AddTimer(20.0f, () => {
                 if (isSideSelectionPhase) {
-                    PrintToAllChat($"{ChatColors.Green}{knifeWinnerName}{ChatColors.Default} tied the match");
-                    EndSeries(null, 5, 0, 0);
+                    PrintToAllChat($"{chatPrefix} {knifeWinnerName} has 40 seconds left to choose side!");
+                }
+            });
+            
+            AddTimer(40.0f, () => {
+                if (isSideSelectionPhase) {
+                    PrintToAllChat($"{chatPrefix} {knifeWinnerName} has 20 seconds left to choose side!");
+                }
+            });
+            
+            AddTimer(50.0f, () => {
+                if (isSideSelectionPhase) {
+                    PrintToAllChat($"{chatPrefix} {knifeWinnerName} has 10 seconds left to choose side!");
                 }
             });
         }
@@ -220,7 +257,9 @@ namespace MatchZy
                 { ".bestctspawn", OnBestCTSpawnCommand },
                 { ".worstctspawn", OnWorstCTSpawnCommand },
                 { ".besttspawn", OnBestTSpawnCommand },
-                { ".worsttspawn", OnWorstTSpawnCommand }
+                { ".worsttspawn", OnWorstTSpawnCommand },
+                { ".ffw", OnFFWCommand },
+                { ".gg", OnGGCommand }
             };
 
             RegisterEventHandler<EventPlayerConnectFull>(EventPlayerConnectFullHandler);

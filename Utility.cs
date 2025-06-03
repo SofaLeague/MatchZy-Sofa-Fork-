@@ -284,8 +284,10 @@ namespace MatchZy
             knifeWinnerName = knifeWinner == 3 ? reverseTeamSides["CT"].teamName : reverseTeamSides["TERRORIST"].teamName;
             ShowDamageInfo();
             PrintToAllChat(Localizer["matchzy.knife.sidedecisionpending", knifeWinnerName]);
-            // Server.PrintToChatAll($"{chatPrefix} {ChatColors.Green}{knifeWinnerName}{ChatColors.Default} Won the knife. Waiting for them to type {ChatColors.Green}.stay{ChatColors.Default} or {ChatColors.Green}.switch{ChatColors.Default}");
             sideSelectionMessageTimer ??= AddTimer(chatTimerDelay, SendSideSelectionMessage, TimerFlags.REPEAT);
+            
+            // Запускаем таймер для автовыбора стороны
+            DrawSideSelection();
         }
 
         private void SetLiveFlags()
@@ -386,6 +388,7 @@ namespace MatchZy
                     Server.ExecuteCommand($"tv_stoprecord");
                     isDemoRecording = false;
                 }
+                OnMatchEnd();
                 // Reset match data
                 matchStarted = false;
                 readyAvailable = true;

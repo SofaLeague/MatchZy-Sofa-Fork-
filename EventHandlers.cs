@@ -72,6 +72,10 @@ public partial class MatchZy
                 }
             }
 
+            if (ffwActive)
+            {
+                CheckFFWStatus();
+            }
 
             
             return HookResult.Continue;
@@ -116,6 +120,16 @@ public partial class MatchZy
                         return;
                     }
                 });
+            }
+
+            if (userId != null && player != null)
+            {
+                var team = player.Team;
+                var playerTeam = player!.Team;
+                if (team == CsTeam.CounterTerrorist || team == CsTeam.Terrorist)
+                {
+                    ggVotes[playerTeam].Remove(player.UserId.Value);
+                }
             }
 
 
