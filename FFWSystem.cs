@@ -14,12 +14,10 @@ namespace MatchZy
         private CsTeam ffwRequestingTeam = CsTeam.None;
         private CsTeam ffwMissingTeam = CsTeam.None;
 
-        // Автоматическая проверка отсутствующих команд
         public void CheckForMissingTeams()
         {
             if (!isMatchLive || ffwActive) return;
 
-            // Подсчитываем игроков в командах
             int ctCount = 0;
             int tCount = 0;
 
@@ -30,7 +28,6 @@ namespace MatchZy
                 else if (p.Team == CsTeam.Terrorist) tCount++;
             }
 
-            // Проверяем, есть ли команда без игроков
             if (ctCount > 0 && tCount == 0)
             {
                 StartFFW(CsTeam.CounterTerrorist, CsTeam.Terrorist);
@@ -51,7 +48,6 @@ namespace MatchZy
 
             PrintToAllChat($"FFW timer started! {ChatColors.Green}{missingTeamName}{ChatColors.Default} has {ChatColors.Green}4{ChatColors.Default} minutes to return!");
 
-            // Основной таймер на 4 минуты
             ffwTimer = AddTimer(240.0f, () => {
                 if (ffwActive)
                 {
@@ -59,7 +55,6 @@ namespace MatchZy
                 }
             });
 
-            // Таймеры для оповещений
             AddTimer(60.0f, () => {
                 if (ffwActive)
                 {
@@ -102,53 +97,43 @@ namespace MatchZy
 
                 PrintToAllChat($"{loserName} failed to return! {ChatColors.Green}{winnerName}{ChatColors.Default} wins by forfeit!");
 
-                // Останавливаем мониторинг перед завершением матча
                 StopFFWMonitoring();
 
-                // Получаем текущий счет на карте
                 (int currentT1score, int currentT2score) = GetTeamsScore();
 
-                // Определяем, какая команда является team1, а какая team2
                 int t1score, t2score;
 
                 if (ffwRequestingTeam == CsTeam.CounterTerrorist)
                 {
-                    // Если CT команда остались (победили)
                     if (reverseTeamSides["CT"] == matchzyTeam1)
                     {
-                        // CT = team1, значит team1 победила
-                        t1score = Math.Max(currentT1score, 16); // Минимум 16 для победы по форфейту
-                        t2score = currentT2score; // Текущий счет проигравших
+                        t1score = Math.Max(currentT1score, 16);
+                        t2score = currentT2score;
                         matchzyTeam1.seriesScore++;
                     }
                     else
                     {
-                        // CT = team2, значит team2 победила
-                        t1score = currentT1score; // Текущий счет проигравших
-                        t2score = Math.Max(currentT2score, 16); // Минимум 16 для победы по форфейту
+                        t1score = currentT1score;
+                        t2score = Math.Max(currentT2score, 16);
                         matchzyTeam2.seriesScore++;
                     }
                 }
                 else
                 {
-                    // Если T команда остались (победили)
                     if (reverseTeamSides["TERRORIST"] == matchzyTeam1)
                     {
-                        // T = team1, значит team1 победила
-                        t1score = Math.Max(currentT1score, 16); // Минимум 16 для победы по форфейту
-                        t2score = currentT2score; // Текущий счет проигравших
+                        t1score = Math.Max(currentT1score, 16);
+                        t2score = currentT2score;
                         matchzyTeam1.seriesScore++;
                     }
                     else
                     {
-                        // T = team2, значит team2 победила
-                        t1score = currentT1score; // Текущий счет проигравших
-                        t2score = Math.Max(currentT2score, 16); // Минимум 16 для победы по форфейту
+                        t1score = currentT1score;
+                        t2score = Math.Max(currentT2score, 16);
                         matchzyTeam2.seriesScore++;
                     }
                 }
 
-                // Завершаем матч с правильным winner name и счетом
                 EndSeries(winnerName, 5, t1score, t2score);
             }
             else
@@ -164,7 +149,6 @@ namespace MatchZy
         {
             if (!ffwActive) return;
 
-            // Проверяем, вернулся ли кто-то из отсутствующей команды
             foreach (var p in playerData.Values)
             {
                 if (!IsPlayerValid(p)) continue;
@@ -203,7 +187,6 @@ namespace MatchZy
             return "Unknown Team";
         }
 
-        // Запуск периодической проверки FFW
         public void StartFFWMonitoring()
         {
             if (ffwCheckTimer != null) return;
@@ -216,7 +199,6 @@ namespace MatchZy
             }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.REPEAT);
         }
 
-        // Остановка периодической проверки FFW
         public void StopFFWMonitoring()
         {
             ffwCheckTimer?.Kill();
