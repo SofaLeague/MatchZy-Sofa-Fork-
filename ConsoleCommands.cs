@@ -175,6 +175,10 @@ namespace MatchZy
                 {
                     OnTeamSwitch(player, command);
                 }
+
+                SideSelectionTimer?.Kill();
+                SideSelectionTimer = null;
+                return;
             }
 
             if (!isPractice) return;
@@ -201,6 +205,9 @@ namespace MatchZy
                 {
                     OnTeamSwitch(player, command);
                 }
+
+                SideSelectionTimer?.Kill();
+                SideSelectionTimer = null;
                 return;
             }
 
