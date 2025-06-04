@@ -10,11 +10,11 @@ namespace MatchZy
     {
         private CounterStrikeSharp.API.Modules.Timers.Timer? ffwTimer = null;
         private CounterStrikeSharp.API.Modules.Timers.Timer? ffwCheckTimer = null;
+        private List<CounterStrikeSharp.API.Modules.Timers.Timer> ffwMessageTimers = new();
         private bool ffwActive = false;
         private CsTeam ffwRequestingTeam = CsTeam.None;
         private CsTeam ffwMissingTeam = CsTeam.None;
         
-        // Новые поля для хранения matchzyTeam
         private Team? ffwRequestingMatchTeam = null;
         private Team? ffwMissingMatchTeam = null;
 
@@ -44,11 +44,16 @@ namespace MatchZy
 
         private void StartFFW(CsTeam requestingTeam, CsTeam missingTeam)
         {
+            // Если FFW уже активен, не запускаем новый
+            if (ffwActive) return;
+            
             ffwActive = true;
             ffwRequestingTeam = requestingTeam;
             ffwMissingTeam = missingTeam;
             
-            // Сохраняем именно matchzyTeam, а не сторону
+            // Очищаем старые таймеры сообщений
+            ClearFFWMessageTimers();
+            
             if (requestingTeam == CsTeam.CounterTerrorist)
             {
                 ffwRequestingMatchTeam = reverseTeamSides["CT"];
@@ -71,44 +76,55 @@ namespace MatchZy
                 }
             });
 
-            AddTimer(60.0f, () => {
-                if (ffwActive)
+            // Сохраняем все таймеры сообщений
+            ffwMessageTimers.Add(AddTimer(60.0f, () => {
+                if (ffwActive && ffwMissingMatchTeam != null)
                 {
-                    PrintToAllChat($"{ChatColors.Green}{missingTeamName}{ChatColors.Default} has {ChatColors.Green}3{ChatColors.Default} minutes left to return!");
+                    PrintToAllChat($"{ChatColors.Green}{ffwMissingMatchTeam.teamName}{ChatColors.Default} has {ChatColors.Green}3{ChatColors.Default} minutes left to return!");
                 }
-            });
+            }));
 
-            AddTimer(120.0f, () => {
-                if (ffwActive)
+            ffwMessageTimers.Add(AddTimer(120.0f, () => {
+                if (ffwActive && ffwMissingMatchTeam != null)
                 {
-                    PrintToAllChat($"{ChatColors.Green}{missingTeamName}{ChatColors.Default} has {ChatColors.Green}2{ChatColors.Default} minutes left to return!");
+                    PrintToAllChat($"{ChatColors.Green}{ffwMissingMatchTeam.teamName}{ChatColors.Default} has {ChatColors.Green}2{ChatColors.Default} minutes left to return!");
                 }
-            });
+            }));
 
-            AddTimer(180.0f, () => {
-                if (ffwActive)
+            ffwMessageTimers.Add(AddTimer(180.0f, () => {
+                if (ffwActive && ffwMissingMatchTeam != null)
                 {
-                    PrintToAllChat($"{ChatColors.Green}{missingTeamName}{ChatColors.Default} has {ChatColors.Green}1{ChatColors.Default} minute left to return!");
+                    PrintToAllChat($"{ChatColors.Green}{ffwMissingMatchTeam.teamName}{ChatColors.Default} has {ChatColors.Green}1{ChatColors.Default} minute left to return!");
                 }
-            });
+            }));
 
-            AddTimer(210.0f, () => {
-                if (ffwActive)
+            ffwMessageTimers.Add(AddTimer(210.0f, () => {
+                if (ffwActive && ffwMissingMatchTeam != null)
                 {
-                    PrintToAllChat($"{ChatColors.Green}{missingTeamName}{ChatColors.Default} has {ChatColors.Green}30{ChatColors.Default} seconds left to return!");
+                    PrintToAllChat($"{ChatColors.Green}{ffwMissingMatchTeam.teamName}{ChatColors.Default} has {ChatColors.Green}30{ChatColors.Default} seconds left to return!");
                 }
-            });
+            }));
+        }
+
+        private void ClearFFWMessageTimers()
+        {
+            foreach (var timer in ffwMessageTimers)
+            {
+                timer?.Kill();
+            }
+            ffwMessageTimers.Clear();
         }
 
         private void EndFFW(bool forfeit)
         {
             ffwTimer?.Kill();
             ffwTimer = null;
+            ClearFFWMessageTimers();
             ffwActive = false;
 
             if (forfeit && ffwRequestingMatchTeam != null && ffwMissingMatchTeam != null)
             {
-                // Перепроверяем перед выдачей победы - действительно ли команда отсутствует
+                // Перепроверяем перед выдачей победы
                 bool missingTeamStillEmpty = true;
                 
                 foreach (var p in playerData.Values)
@@ -130,7 +146,6 @@ namespace MatchZy
                 
                 if (!missingTeamStillEmpty)
                 {
-                    // Команда вернулась в последний момент
                     PrintToAllChat($"{ChatColors.Green}{ffwMissingMatchTeam.teamName}{ChatColors.Default} has returned at the last moment! FFW cancelled.");
                     ffwRequestingTeam = CsTeam.None;
                     ffwMissingTeam = CsTeam.None;
@@ -139,7 +154,6 @@ namespace MatchZy
                     return;
                 }
                 
-                // Команда действительно отсутствует, выдаем победу
                 string winnerName = ffwRequestingMatchTeam.teamName;
                 string loserName = ffwMissingMatchTeam.teamName;
 
@@ -188,7 +202,6 @@ namespace MatchZy
             {
                 if (!IsPlayerValid(p)) continue;
                 
-                // Проверяем по matchzyTeam, а не по стороне
                 Team? playerMatchTeam = null;
                 if (p.Team == CsTeam.CounterTerrorist)
                     playerMatchTeam = reverseTeamSides["CT"];
@@ -246,6 +259,7 @@ namespace MatchZy
         {
             ffwCheckTimer?.Kill();
             ffwCheckTimer = null;
+            ClearFFWMessageTimers();
         }
     }
 }
