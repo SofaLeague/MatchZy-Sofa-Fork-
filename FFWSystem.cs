@@ -13,6 +13,10 @@ namespace MatchZy
         private bool ffwActive = false;
         private CsTeam ffwRequestingTeam = CsTeam.None;
         private CsTeam ffwMissingTeam = CsTeam.None;
+        
+        // Новые поля для хранения matchzyTeam
+        private Team? ffwRequestingMatchTeam = null;
+        private Team? ffwMissingMatchTeam = null;
 
         public void CheckForMissingTeams()
         {
@@ -43,8 +47,20 @@ namespace MatchZy
             ffwActive = true;
             ffwRequestingTeam = requestingTeam;
             ffwMissingTeam = missingTeam;
+            
+            // Сохраняем именно matchzyTeam, а не сторону
+            if (requestingTeam == CsTeam.CounterTerrorist)
+            {
+                ffwRequestingMatchTeam = reverseTeamSides["CT"];
+                ffwMissingMatchTeam = reverseTeamSides["TERRORIST"];
+            }
+            else
+            {
+                ffwRequestingMatchTeam = reverseTeamSides["TERRORIST"];
+                ffwMissingMatchTeam = reverseTeamSides["CT"];
+            }
 
-            string missingTeamName = GetTeamName(missingTeam);
+            string missingTeamName = ffwMissingMatchTeam!.teamName;
 
             PrintToAllChat($"FFW timer started! {ChatColors.Green}{missingTeamName}{ChatColors.Default} has {ChatColors.Green}4{ChatColors.Default} minutes to return!");
 
@@ -90,10 +106,42 @@ namespace MatchZy
             ffwTimer = null;
             ffwActive = false;
 
-            if (forfeit)
+            if (forfeit && ffwRequestingMatchTeam != null && ffwMissingMatchTeam != null)
             {
-                string winnerName = GetTeamName(ffwRequestingTeam);
-                string loserName = GetTeamName(ffwMissingTeam);
+                // Перепроверяем перед выдачей победы - действительно ли команда отсутствует
+                bool missingTeamStillEmpty = true;
+                
+                foreach (var p in playerData.Values)
+                {
+                    if (!IsPlayerValid(p)) continue;
+                    
+                    Team? playerMatchTeam = null;
+                    if (p.Team == CsTeam.CounterTerrorist)
+                        playerMatchTeam = reverseTeamSides["CT"];
+                    else if (p.Team == CsTeam.Terrorist)
+                        playerMatchTeam = reverseTeamSides["TERRORIST"];
+                        
+                    if (playerMatchTeam == ffwMissingMatchTeam)
+                    {
+                        missingTeamStillEmpty = false;
+                        break;
+                    }
+                }
+                
+                if (!missingTeamStillEmpty)
+                {
+                    // Команда вернулась в последний момент
+                    PrintToAllChat($"{ChatColors.Green}{ffwMissingMatchTeam.teamName}{ChatColors.Default} has returned at the last moment! FFW cancelled.");
+                    ffwRequestingTeam = CsTeam.None;
+                    ffwMissingTeam = CsTeam.None;
+                    ffwRequestingMatchTeam = null;
+                    ffwMissingMatchTeam = null;
+                    return;
+                }
+                
+                // Команда действительно отсутствует, выдаем победу
+                string winnerName = ffwRequestingMatchTeam.teamName;
+                string loserName = ffwMissingMatchTeam.teamName;
 
                 PrintToAllChat($"{loserName} failed to return! {ChatColors.Green}{winnerName}{ChatColors.Default} wins by forfeit!");
 
@@ -103,56 +151,51 @@ namespace MatchZy
 
                 int t1score, t2score;
 
-                if (ffwRequestingTeam == CsTeam.CounterTerrorist)
+                if (ffwRequestingMatchTeam == matchzyTeam1)
                 {
-                    if (reverseTeamSides["CT"] == matchzyTeam1)
-                    {
-                        t1score = Math.Max(currentT1score, 16);
-                        t2score = currentT2score;
-                        matchzyTeam1.seriesScore++;
-                    }
-                    else
-                    {
-                        t1score = currentT1score;
-                        t2score = Math.Max(currentT2score, 16);
-                        matchzyTeam2.seriesScore++;
-                    }
+                    t1score = Math.Max(currentT1score, 16);
+                    t2score = currentT2score;
+                    matchzyTeam1.seriesScore++;
                 }
                 else
                 {
-                    if (reverseTeamSides["TERRORIST"] == matchzyTeam1)
-                    {
-                        t1score = Math.Max(currentT1score, 16);
-                        t2score = currentT2score;
-                        matchzyTeam1.seriesScore++;
-                    }
-                    else
-                    {
-                        t1score = currentT1score;
-                        t2score = Math.Max(currentT2score, 16);
-                        matchzyTeam2.seriesScore++;
-                    }
+                    t1score = currentT1score;
+                    t2score = Math.Max(currentT2score, 16);
+                    matchzyTeam2.seriesScore++;
                 }
 
                 EndSeries(winnerName, 5, t1score, t2score);
             }
             else
             {
-                PrintToAllChat($"{ChatColors.Green}{GetTeamName(ffwMissingTeam)}{ChatColors.Default} has returned! FFW cancelled.");
+                if (ffwMissingMatchTeam != null)
+                {
+                    PrintToAllChat($"{ChatColors.Green}{ffwMissingMatchTeam.teamName}{ChatColors.Default} has returned! FFW cancelled.");
+                }
             }
 
             ffwRequestingTeam = CsTeam.None;
             ffwMissingTeam = CsTeam.None;
+            ffwRequestingMatchTeam = null;
+            ffwMissingMatchTeam = null;
         }
 
         public void CheckFFWStatus()
         {
-            if (!ffwActive) return;
+            if (!ffwActive || ffwMissingMatchTeam == null) return;
 
             foreach (var p in playerData.Values)
             {
                 if (!IsPlayerValid(p)) continue;
-                if (p.Team == ffwMissingTeam)
+                
+                // Проверяем по matchzyTeam, а не по стороне
+                Team? playerMatchTeam = null;
+                if (p.Team == CsTeam.CounterTerrorist)
+                    playerMatchTeam = reverseTeamSides["CT"];
+                else if (p.Team == CsTeam.Terrorist)
+                    playerMatchTeam = reverseTeamSides["TERRORIST"];
+                    
+                if (playerMatchTeam == ffwMissingMatchTeam)
                 {
                     EndFFW(false);
                     return;
