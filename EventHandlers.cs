@@ -19,9 +19,18 @@ public partial class MatchZy
             // Handling whitelisted players
             if (!player.IsBot || !player.IsHLTV)
             {
-                var steamId = player.SteamID;
+                var steamId = player.SteamID.ToString();
 
-                bool kicked = HandlePlayerWhitelist(player, steamId.ToString());
+                // Проверяем временный черный список
+                if (IsInTemporaryBlacklist(steamId))
+                {
+                    Log($"[EventPlayerConnectFull] KICKING PLAYER STEAMID: {steamId}, Name: {player.PlayerName} (In temporary blacklist!)");
+                    PrintToAllChat($"Kicking player {player.PlayerName} - Please wait before reconnecting.");
+                    KickPlayer(player);
+                    return HookResult.Continue;
+                }
+
+                bool kicked = HandlePlayerWhitelist(player, steamId);
                 if (kicked) return HookResult.Continue;
 
                 if (isMatchSetup || matchModeOnly)
@@ -36,7 +45,6 @@ public partial class MatchZy
                     }
                 }
             }
-
 
             if (player.UserId.HasValue)
             {
@@ -77,16 +85,13 @@ public partial class MatchZy
                 CheckFFWStatus();
             }
 
-            
             return HookResult.Continue;
-
         }
-        catch (Exception)
+        catch (Exception e)
         {
-          //  Log($"[EventPlayerConnectFull FATAL] An error occurred: {e.Message}");
+            Log($"[EventPlayerConnectFull FATAL] An error occurred: {e.Message}");
             return HookResult.Continue;
         }
-
     }
     public HookResult EventPlayerDisconnectHandler(EventPlayerDisconnect @event, GameEventInfo info)
         {

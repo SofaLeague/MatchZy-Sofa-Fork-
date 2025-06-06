@@ -35,7 +35,7 @@ namespace MatchZy
     public partial class MatchZy
     {
         [ConsoleCommand("css_coach", "Sets coach for the requested team")]
-        public void OnCoachCommand(CCSPlayerController? player, CommandInfo command) 
+        public void OnCoachCommand(CCSPlayerController? player, CommandInfo command)
         {
             HandleCoachCommand(player, command.ArgString);
         }
@@ -44,22 +44,26 @@ namespace MatchZy
         public void OnUnCoachCommand(CCSPlayerController? player, CommandInfo? command)
         {
             if (player == null || !player.PlayerPawn.IsValid) return;
-            if (isPractice) {
+            if (isPractice)
+            {
                 ReplyToUserCommand(player, "Uncoach command can only be used in match mode!");
                 return;
             }
 
-            if (matchzyTeam1.coach.Contains(player)) {
+            if (matchzyTeam1.coach.Contains(player))
+            {
                 player.Clan = "";
                 matchzyTeam1.coach.Remove(player);
                 SetPlayerVisible(player);
             }
-            else if (matchzyTeam2.coach.Contains(player)) {
+            else if (matchzyTeam2.coach.Contains(player))
+            {
                 player.Clan = "";
                 matchzyTeam2.coach.Remove(player);
                 SetPlayerVisible(player);
             }
-            else {
+            else
+            {
                 ReplyToUserCommand(player, "You are not coaching any team!");
                 return;
             }
@@ -74,7 +78,8 @@ namespace MatchZy
         public void OnAddPlayerCommand(CCSPlayerController? player, CommandInfo? command)
         {
             if (player != null || command == null) return;
-            if (!isMatchSetup) {
+            if (!isMatchSetup)
+            {
                 command.ReplyToCommand("No match is setup!");
                 return;
             }
@@ -86,7 +91,7 @@ namespace MatchZy
             if (command.ArgCount < 3)
             {
                 command.ReplyToCommand("Usage: matchzy_addplayer <steam64> <team> \"<name>\"");
-                return; 
+                return;
             }
 
             string playerSteamId = command.ArgByIndex(1);
@@ -96,16 +101,19 @@ namespace MatchZy
             if (playerTeam == "team1")
             {
                 success = AddPlayerToTeam(playerSteamId, playerName, matchzyTeam1.teamPlayers);
-            } else if (playerTeam == "team2")
+            }
+            else if (playerTeam == "team2")
             {
                 success = AddPlayerToTeam(playerSteamId, playerName, matchzyTeam2.teamPlayers);
-            } else if (playerTeam == "spec")
+            }
+            else if (playerTeam == "spec")
             {
                 success = AddPlayerToTeam(playerSteamId, playerName, matchConfig.Spectators);
-            } else 
+            }
+            else
             {
                 command.ReplyToCommand("Unknown team: must be one of team1, team2, spec");
-                return; 
+                return;
             }
             if (!success)
             {
@@ -121,7 +129,8 @@ namespace MatchZy
         public void OnRemovePlayerCommand(CCSPlayerController? player, CommandInfo? command)
         {
             if (player != null || command == null) return;
-            if (!isMatchSetup) {
+            if (!isMatchSetup)
+            {
                 command.ReplyToCommand("No match is setup!");
                 return;
             }
@@ -179,23 +188,124 @@ namespace MatchZy
 
         public bool RemovePlayerFromTeam(string steamId)
         {
+            bool removed = false;
             List<JToken?> teams = [matchzyTeam1.teamPlayers, matchzyTeam2.teamPlayers, matchConfig.Spectators];
 
             foreach (var team in teams)
             {
                 if (team is null) continue;
+
                 if (team is JObject jObjectTeam)
                 {
-                    jObjectTeam.Remove(steamId);
-                    return true;
+                    if (jObjectTeam.ContainsKey(steamId))
+                    {
+                        jObjectTeam.Remove(steamId);
+                        removed = true;
+                        Log($"[RemovePlayerFromTeam] Removed player {steamId} from team (JObject)");
+                    }
                 }
                 else if (team is JArray jArrayTeam)
                 {
-                    jArrayTeam.Remove(steamId);
+                    // Для JArray нужно найти и удалить элемент
+                    var itemToRemove = jArrayTeam.FirstOrDefault(item =>
+                        item.Type == JTokenType.String && item.ToString() == steamId);
+
+                    if (itemToRemove != null)
+                    {
+                        jArrayTeam.Remove(itemToRemove);
+                        removed = true;
+                        Log($"[RemovePlayerFromTeam] Removed player {steamId} from team (JArray)");
+                    }
+                }
+            }
+
+            // Очищаем кэшированные данные игрока
+            if (removed)
+            {
+                // Обновляем список имен клиентов
+                LoadClientNames();
+
+                // Очищаем все связанные данные игрока
+                CleanupPlayerData(steamId);
+            }
+
+            return removed;
+        }
+        private void CleanupPlayerData(string steamId)
+        {
+            try
+            {
+                // Находим игрока по SteamID
+                CCSPlayerController? playerToRemove = null;
+                foreach (var kvp in playerData)
+                {
+                    if (kvp.Value.SteamID.ToString() == steamId)
+                    {
+                        playerToRemove = kvp.Value;
+                        break;
+                    }
+                }
+
+                if (playerToRemove != null && playerToRemove.UserId.HasValue)
+                {
+                    int userId = playerToRemove.UserId.Value;
+
+                    // Удаляем из всех словарей
+                    playerData.Remove(userId);
+                    playerReadyStatus.Remove(userId);
+                    noFlashList.Remove(userId);
+                    lastGrenadesData.Remove(userId);
+                    nadeSpecificLastGrenadeData.Remove(userId);
+
+                    // Удаляем из списков тренеров
+                    matchzyTeam1.coach.Remove(playerToRemove);
+                    matchzyTeam2.coach.Remove(playerToRemove);
+
+                    Log($"[CleanupPlayerData] Cleaned up all data for player {steamId} (UserId: {userId})");
+                }
+            }
+            catch (Exception)
+            {
+            }
+        }
+
+        private Dictionary<string, DateTime> temporaryBlacklist = new();
+
+        private void AddToTemporaryBlacklist(string steamId, int seconds)
+        {
+            temporaryBlacklist[steamId] = DateTime.Now.AddSeconds(seconds);
+            Log($"[AddToTemporaryBlacklist] Added {steamId} to temporary blacklist for {seconds} seconds");
+        }
+
+        private bool IsInTemporaryBlacklist(string steamId)
+        {
+            if (temporaryBlacklist.TryGetValue(steamId, out DateTime expiryTime))
+            {
+                if (DateTime.Now < expiryTime)
+                {
                     return true;
+                }
+                else
+                {
+                    temporaryBlacklist.Remove(steamId);
                 }
             }
             return false;
+        }
+
+        // Метод для периодической очистки устаревших записей (можно вызывать в OnMapStart или по таймеру)
+        private void CleanupTemporaryBlacklist()
+        {
+            var expiredEntries = temporaryBlacklist
+                .Where(kvp => DateTime.Now >= kvp.Value)
+                .Select(kvp => kvp.Key)
+                .ToList();
+
+            foreach (var steamId in expiredEntries)
+            {
+                temporaryBlacklist.Remove(steamId);
+                Log($"[CleanupTemporaryBlacklist] Removed expired entry for {steamId}");
+            }
         }
     }
 }
