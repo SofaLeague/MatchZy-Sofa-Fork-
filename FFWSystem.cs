@@ -157,7 +157,7 @@ namespace MatchZy
                 string winnerName = ffwRequestingMatchTeam.teamName;
                 string loserName = ffwMissingMatchTeam.teamName;
 
-                PrintToAllChat($"{loserName} failed to return! {ChatColors.Green}{winnerName}{ChatColors.Default} wins by forfeit!");
+                PrintToAllChat($"{ChatColors.Green}{loserName}{ChatColors.Default} failed to return! {ChatColors.Green}{winnerName}{ChatColors.Default} wins by forfeit!");
 
                 StopFFWMonitoring();
 
