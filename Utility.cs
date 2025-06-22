@@ -570,29 +570,24 @@ namespace MatchZy
 
         public void DetermineKnifeWinner()
         {
-            // Knife Round code referred from Get5, thanks to the Get5 team for their amazing job!
             (int tAlive, int tHealth) = GetAlivePlayers(2);
             (int ctAlive, int ctHealth) = GetAlivePlayers(3);
+            
             Log($"[KNIFE OVER] CT Alive: {ctAlive} with Total Health: {ctHealth}, T Alive: {tAlive} with Total Health: {tHealth}");
-            if (ctAlive > tAlive)
+
+            int aliveDiff = ctAlive - tAlive;
+            int healthDiff = ctHealth - tHealth;
+            
+            if (aliveDiff != 0)
             {
-                knifeWinner = 3;
+                knifeWinner = aliveDiff > 0 ? 3 : 2;
             }
-            else if (tAlive > ctAlive)
+            else if (healthDiff != 0)
             {
-                knifeWinner = 2;
-            }
-            else if (ctHealth > tHealth)
-            {
-                knifeWinner = 3;
-            }
-            else if (tHealth > ctHealth)
-            {
-                knifeWinner = 2;
+                knifeWinner = healthDiff > 0 ? 3 : 2;
             }
             else
             {
-                // Choosing a winner randomly
                 Random random = new();
                 knifeWinner = random.Next(2, 4);
             }

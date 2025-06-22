@@ -46,6 +46,7 @@ namespace MatchZy
         {
             // Если FFW уже активен, не запускаем новый
             if (ffwActive) return;
+            if (!isMatchLive) return;
             
             ffwActive = true;
             ffwRequestingTeam = requestingTeam;

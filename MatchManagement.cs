@@ -399,7 +399,7 @@ namespace MatchZy
 
                 if (isWarmup) {
                     if (IsAllowTimer) {
-                        PrintToAllChat($"1 minute left to .ready");
+                        PrintToAllChat($"1 minute left to join");
                     }
                 }
             });
@@ -408,9 +408,12 @@ namespace MatchZy
                 if (matchStarted) return;
 
                 if (isWarmup) {
-                    if (IsAllowTimer) {
+                   if (IsAllowTimer) {
+                       if (GetRealPlayersCount() != matchConfig.MinPlayersToReady * 2)
+                       {
                         EndSeries(null, 5, 0, 0);
                         Log($"due to nezahod");
+                       }
                     }
                 }
             });
