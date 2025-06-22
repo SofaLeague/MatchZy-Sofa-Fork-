@@ -25,6 +25,12 @@ namespace MatchZy
                 return;
             }
 
+            if (IsHalfTimePhase())
+            {
+                ReplyToUserCommand(player, "GG cat be used during a halftime process");
+                return;
+            }
+
             var playerTeam = player!.Team;
             if (playerTeam != CsTeam.Terrorist && playerTeam != CsTeam.CounterTerrorist)
             {
