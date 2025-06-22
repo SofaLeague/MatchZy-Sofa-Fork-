@@ -1,10 +1,7 @@
-using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Modules.Utils;
 using CounterStrikeSharp.API.Core.Attributes.Registration;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MatchZy
 {
@@ -41,8 +38,11 @@ namespace MatchZy
             int opponentTeamScore = 0;
             string playerTeamName = GetTeamName(playerTeam);
 
+            // Определяем MatchTeam для команды игрока (как в FFWSystem)
+            Team? playerMatchTeam = null;
             if (playerTeam == CsTeam.CounterTerrorist)
             {
+                playerMatchTeam = reverseTeamSides["CT"];
                 if (reverseTeamSides["CT"] == matchzyTeam1)
                 {
                     playerTeamScore = t1score;
@@ -56,6 +56,7 @@ namespace MatchZy
             }
             else if (playerTeam == CsTeam.Terrorist)
             {
+                playerMatchTeam = reverseTeamSides["TERRORIST"];
                 if (reverseTeamSides["TERRORIST"] == matchzyTeam1)
                 {
                     playerTeamScore = t1score;
@@ -105,50 +106,85 @@ namespace MatchZy
             // Проверяем, достаточно ли голосов
             if (currentVotes >= votesNeeded)
             {
+                // Финальная проверка счета перед сдачей
+                (int finalT1score, int finalT2score) = GetTeamsScore();
+                int finalPlayerTeamScore = 0;
+                int finalOpponentTeamScore = 0;
+
+                if (playerTeam == CsTeam.CounterTerrorist)
+                {
+                    if (reverseTeamSides["CT"] == matchzyTeam1)
+                    {
+                        finalPlayerTeamScore = finalT1score;
+                        finalOpponentTeamScore = finalT2score;
+                    }
+                    else
+                    {
+                        finalPlayerTeamScore = finalT2score;
+                        finalOpponentTeamScore = finalT1score;
+                    }
+                }
+                else if (playerTeam == CsTeam.Terrorist)
+                {
+                    if (reverseTeamSides["TERRORIST"] == matchzyTeam1)
+                    {
+                        finalPlayerTeamScore = finalT1score;
+                        finalOpponentTeamScore = finalT2score;
+                    }
+                    else
+                    {
+                        finalPlayerTeamScore = finalT2score;
+                        finalOpponentTeamScore = finalT1score;
+                    }
+                }
+
+                // Проверяем, что команда все еще проигрывает на 6+ раундов
+                int finalScoreDifference = finalOpponentTeamScore - finalPlayerTeamScore;
+                if (finalScoreDifference < 6)
+                {
+                    PrintToAllChat($"{ChatColors.Red}GG cancelled!{ChatColors.Default} {ChatColors.Green}{playerTeamName}{ChatColors.Default} is no longer losing by 6+ rounds. Current score: {finalPlayerTeamScore}-{finalOpponentTeamScore}");
+                    ResetGGVotes();
+                    return;
+                }
+
                 // Команда сдается - определяем победителя
                 CsTeam winnerTeam = playerTeam == CsTeam.CounterTerrorist ? CsTeam.Terrorist : CsTeam.CounterTerrorist;
                 string winnerTeamName = GetTeamName(winnerTeam);
 
                 PrintToAllChat($"{ChatColors.Green}{playerTeamName}{ChatColors.Default} has surrendered! {ChatColors.Green}{winnerTeamName}{ChatColors.Default} wins!");
 
-                // Определяем правильный счет для EndSeries
+                // Используем такую же логику как в FFWSystem
+                (int currentT1score, int currentT2score) = GetTeamsScore();
+
                 int t1score_final, t2score_final;
 
-                if (playerTeam == CsTeam.CounterTerrorist)
+                // Определяем команду-победителя (противник сдавшейся команды)
+                Team? winnerMatchTeam = null;
+                if (playerMatchTeam == matchzyTeam1)
                 {
-                    // CT сдается, T побеждает
-                    if (reverseTeamSides["CT"] == matchzyTeam1)
-                    {
-                        // CT = team1, T = team2, значит team2 победила
-                        t1score_final = playerTeamScore; // Счет сдавшейся команды (CT/team1)
-                        t2score_final = Math.Max(opponentTeamScore, 16); // Минимум 16 для победы
-                        matchzyTeam2.seriesScore++;
-                    }
-                    else
-                    {
-                        // CT = team2, T = team1, значит team1 победила
-                        t1score_final = Math.Max(opponentTeamScore, 16); // Минимум 16 для победы
-                        t2score_final = playerTeamScore; // Счет сдавшейся команды (CT/team2)
-                        matchzyTeam1.seriesScore++;
-                    }
+                    winnerMatchTeam = matchzyTeam2;
                 }
                 else
                 {
-                    // T сдается, CT побеждает
-                    if (reverseTeamSides["TERRORIST"] == matchzyTeam1)
-                    {
-                        // T = team1, CT = team2, значит team2 победила
-                        t1score_final = playerTeamScore; // Счет сдавшейся команды (T/team1)
-                        t2score_final = Math.Max(opponentTeamScore, 16); // Минимум 16 для победы
-                        matchzyTeam2.seriesScore++;
-                    }
-                    else
-                    {
-                        // T = team2, CT = team1, значит team1 победила
-                        t1score_final = Math.Max(opponentTeamScore, 16); // Минимум 16 для победы
-                        t2score_final = playerTeamScore; // Счет сдавшейся команды (T/team2)
-                        matchzyTeam1.seriesScore++;
-                    }
+                    winnerMatchTeam = matchzyTeam1;
+                }
+
+                // Увеличиваем серию счет команды-победителя
+                if (winnerMatchTeam != null)
+                {
+                    winnerMatchTeam.seriesScore++;
+                }
+
+                // Устанавливаем финальный счет (как в FFWSystem)
+                if (winnerMatchTeam == matchzyTeam1)
+                {
+                    t1score_final = Math.Max(currentT1score, 16);
+                    t2score_final = currentT2score;
+                }
+                else
+                {
+                    t1score_final = currentT1score;
+                    t2score_final = Math.Max(currentT2score, 16);
                 }
 
                 EndSeries(winnerTeamName, 5, t1score_final, t2score_final);
@@ -178,6 +214,12 @@ namespace MatchZy
 
         // Вызывать при завершении матча
         private void OnMatchEnd()
+        {
+            ResetGGVotes();
+        }
+
+        // Вызывать при смене сторон для сброса голосов GG
+        public void OnSideSwitch()
         {
             ResetGGVotes();
         }
