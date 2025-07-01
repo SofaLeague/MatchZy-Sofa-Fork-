@@ -21,6 +21,7 @@ namespace MatchZy
         public void CheckForMissingTeams()
         {
             if (!isMatchLive || ffwActive) return;
+            if (IsHalfTimePhase()) return;
 
             int ctCount = 0;
             int tCount = 0;
@@ -118,6 +119,12 @@ namespace MatchZy
 
         private void EndFFW(bool forfeit)
         {
+
+            if (IsHalfTimePhase())
+            {
+                AddTimer(5.0f, () => EndFFW(true));
+                return;
+            }
             ffwTimer?.Kill();
             ffwTimer = null;
             ClearFFWMessageTimers();
@@ -198,17 +205,18 @@ namespace MatchZy
         public void CheckFFWStatus()
         {
             if (!ffwActive || ffwMissingMatchTeam == null) return;
+            if (IsHalfTimePhase()) return;
 
             foreach (var p in playerData.Values)
             {
                 if (!IsPlayerValid(p)) continue;
-                
+
                 Team? playerMatchTeam = null;
                 if (p.Team == CsTeam.CounterTerrorist)
                     playerMatchTeam = reverseTeamSides["CT"];
                 else if (p.Team == CsTeam.Terrorist)
                     playerMatchTeam = reverseTeamSides["TERRORIST"];
-                    
+
                 if (playerMatchTeam == ffwMissingMatchTeam)
                 {
                     EndFFW(false);
