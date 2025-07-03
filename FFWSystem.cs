@@ -269,6 +269,7 @@ namespace MatchZy
             ffwCheckTimer?.Kill();
             ffwCheckTimer = null;
             ClearFFWMessageTimers();
+            ffwActive = false;
         }
     }
 }
