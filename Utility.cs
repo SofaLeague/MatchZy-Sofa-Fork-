@@ -11,6 +11,7 @@ using System.Text.RegularExpressions;
 using System.Text;
 using Newtonsoft.Json.Linq;
 using System.Drawing;
+using System.Security.Cryptography;
 
 
 namespace MatchZy
@@ -575,22 +576,26 @@ namespace MatchZy
             
             Log($"[KNIFE OVER] CT Alive: {ctAlive} with Total Health: {ctHealth}, T Alive: {tAlive} with Total Health: {tHealth}");
 
-            int aliveDiff = ctAlive - tAlive;
-            int healthDiff = ctHealth - tHealth;
-            
-            if (aliveDiff != 0)
-            {
-                knifeWinner = aliveDiff > 0 ? 3 : 2;
-            }
-            else if (healthDiff != 0)
-            {
-                knifeWinner = healthDiff > 0 ? 3 : 2;
-            }
-            else
+            if (ctAlive == 0 && tAlive == 0)
             {
                 Random random = new();
                 knifeWinner = random.Next(2, 4);
+                return;
             }
+
+            if (ctAlive != tAlive)
+                {
+                    knifeWinner = ctAlive > tAlive ? 3 : 2;
+                }
+                else if (ctHealth != tHealth)
+                {
+                    knifeWinner = ctHealth > tHealth ? 3 : 2;
+                }
+                else
+                {
+                    Random random = new();
+                    knifeWinner = random.Next(2, 4);
+                }
         }
 
         private void HandleKnifeWinner(EventCsWinPanelRound @event)

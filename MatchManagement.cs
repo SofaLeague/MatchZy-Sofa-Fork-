@@ -7,7 +7,6 @@ using CounterStrikeSharp.API.Modules.Timers;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Utils;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json;
 
 
 namespace MatchZy
@@ -422,91 +421,8 @@ namespace MatchZy
             Log($"[LoadMatchFromJSON] Success with matchid: {liveMatchId}!");
             return true;
         }
-        
-        public void SaveMatchToJSON(string fileName = "")
-        {
-            try
-            {
-                if (!isMatchSetup)
-                {
-                    Log("[SaveMatchToJSON] No match is currently setup to save!");
-                    return;
-                }
 
-                var matchData = new JObject();
-
-                matchData["matchid"] = liveMatchId;
-                matchData["num_maps"] = matchConfig.NumMaps;
-                matchData["players_per_team"] = matchConfig.PlayersPerTeam;
-                matchData["min_players_to_ready"] = matchConfig.MinPlayersToReady;
-                matchData["min_spectators_to_ready"] = matchConfig.MinSpectatorsToReady;
-                matchData["skip_veto"] = matchConfig.SkipVeto;
-                matchData["clinch_series"] = matchConfig.SeriesCanClinch;
-                matchData["wingman"] = matchConfig.Wingman;
-
-                var team1Data = new JObject();
-                team1Data["id"] = matchzyTeam1.id;
-                team1Data["name"] = matchzyTeam1.teamName;
-                team1Data["players"] = matchzyTeam1.teamPlayers;
-                matchData["team1"] = team1Data;
-
-                var team2Data = new JObject();
-                team2Data["id"] = matchzyTeam2.id;
-                team2Data["name"] = matchzyTeam2.teamName;
-                team2Data["players"] = matchzyTeam2.teamPlayers;
-                matchData["team2"] = team2Data;
-
-                if (matchConfig.Spectators != null)
-                {
-                    var spectatorsData = new JObject();
-                    spectatorsData["players"] = matchConfig.Spectators;
-                    matchData["spectators"] = spectatorsData;
-                }
-
-                matchData["maplist"] = JArray.FromObject(matchConfig.MapsPool);
-                
-                if (matchConfig.MapSides != null && matchConfig.MapSides.Count > 0)
-                {
-                    matchData["map_sides"] = JArray.FromObject(matchConfig.MapSides);
-                }
-
-                if (matchConfig.MapBanOrder != null && matchConfig.MapBanOrder.Count > 0)
-                {
-                    matchData["veto_mode"] = JArray.FromObject(matchConfig.MapBanOrder);
-                }
-
-                if (matchConfig.ChangedCvars != null && matchConfig.ChangedCvars.Count > 0)
-                {
-                    var cvarsData = new JObject();
-                    foreach (var cvar in matchConfig.ChangedCvars)
-                    {
-                        cvarsData[cvar.Key] = cvar.Value;
-                    }
-                    matchData["cvars"] = cvarsData;
-                }
-
-                if (string.IsNullOrEmpty(fileName))
-                {
-                    string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
-                    fileName = $"match_{liveMatchId}_{timestamp}.json";
-                }
-
-                string filePath = Path.Join(Server.GameDirectory + "/csgo", fileName);
-
-                string jsonString = matchData.ToString(Formatting.Indented);
-                File.WriteAllText(filePath, jsonString);
-
-                Log($"[SaveMatchToJSON] Match configuration saved to: {fileName}");
-                
-            }
-            catch (Exception e)
-            {
-                Log($"[SaveMatchToJSON - FATAL] An error occurred: {e.Message}");
-            }
-        }
-
-        public void SetMapSides()
-        {
+        public void SetMapSides() {
             int mapNumber = matchConfig.CurrentMapNumber;
             if (matchConfig.MapSides[mapNumber] == "team1_ct" || matchConfig.MapSides[mapNumber] == "team2_t")
             {
