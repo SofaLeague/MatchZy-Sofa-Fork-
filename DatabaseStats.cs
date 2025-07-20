@@ -66,14 +66,14 @@ namespace MatchZy
                 }
                 else
                 {
-                    Log($"[InitializeDatabase] Invalid database specified, using SQLite.");
+                    // Log($"[InitializeDatabase] Invalid database specified, using SQLite.");
                     connection = new SqliteConnection($"Data Source={Path.Join(directory, "matchzy.db")}");
                     databaseType = DatabaseType.SQLite;
                 }
             }
-            catch (Exception ex)
+          catch (Exception)
             {
-                Log($"[InitializeDatabase - FATAL] Database connection error: {ex.Message}");
+                // Log($"[InitializeDatabase - FATAL] Database connection error: {ex.Message}");
             }
         }
 
@@ -81,7 +81,7 @@ namespace MatchZy
         {
             if (connection == null)
             {
-                Log("[CreateRequiredTablesSQLite] Database connection is not initialized");
+                // Log("[CreateRequiredTablesSQLite] Database connection is not initialized");
                 return;
             }
 
@@ -161,7 +161,7 @@ namespace MatchZy
         {
             if (connection == null)
             {
-                Log("[CreateRequiredTablesSQL] Database connection is not initialized");
+                // Log("[CreateRequiredTablesSQL] Database connection is not initialized");
                 return;
             }
 
@@ -242,7 +242,7 @@ namespace MatchZy
         {
             if (connection == null)
             {
-                Log("[InitMatch] Database connection is not initialized");
+                // Log("[InitMatch] Database connection is not initialized");
                 return liveMatchId;
             }
 
@@ -289,12 +289,12 @@ namespace MatchZy
                     VALUES (@matchId, " + dateTimeExpression + ", @mapNumber, @mapName)",
                     new { matchId, mapNumber, mapName });
 
-                Log($"[InsertMatchData] Data inserted into matchzy_stats_matches with match_id: {matchId}");
+                // Log($"[InsertMatchData] Data inserted into matchzy_stats_matches with match_id: {matchId}");
                 return matchId;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                Log($"[InsertMatchData - FATAL] Error inserting data: {ex.Message}");
+                // Log($"[InsertMatchData - FATAL] Error inserting data: {ex.Message}");
                 return liveMatchId;
             }
         }
@@ -303,7 +303,7 @@ namespace MatchZy
         {
             if (connection == null)
             {
-                Log("[UpdateTeamData] Database connection is not initialized");
+                // Log("[UpdateTeamData] Database connection is not initialized");
                 return;
             }
 
@@ -315,11 +315,11 @@ namespace MatchZy
                     WHERE matchid = @matchId",
                     new { matchId, team1name, team2name });
 
-                Log($"[UpdateTeamData] Data updated for matchId: {matchId} team1name: {team1name} team2name: {team2name}");
+                // Log($"[UpdateTeamData] Data updated for matchId: {matchId} team1name: {team1name} team2name: {team2name}");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                Log($"[UpdateTeamData - FATAL] Error updating data of matchId: {matchId} [ERROR]: {ex.Message}");
+                // Log($"[UpdateTeamData - FATAL] Error updating data of matchId: {matchId} [ERROR]: {ex.Message}");
             }
         }
 
@@ -327,7 +327,7 @@ namespace MatchZy
         {
             if (connection == null)
             {
-                Log("[SetMapEndData] Database connection is not initialized");
+                // Log("[SetMapEndData] Database connection is not initialized");
                 return;
             }
 
@@ -349,11 +349,11 @@ namespace MatchZy
 
                 await connection.ExecuteAsync(sqlQuery, new { matchId, team1SeriesScore, team2SeriesScore });
 
-                Log($"[SetMapEndData] Data updated for matchId: {matchId} mapNumber: {mapNumber} winnerName: {winnerName}");
+                // Log($"[SetMapEndData] Data updated for matchId: {matchId} mapNumber: {mapNumber} winnerName: {winnerName}");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                Log($"[SetMapEndData - FATAL] Error updating data of matchId: {matchId} mapNumber: {mapNumber} [ERROR]: {ex.Message}");
+                // Log($"[SetMapEndData - FATAL] Error updating data of matchId: {matchId} mapNumber: {mapNumber} [ERROR]: {ex.Message}");
             }
         }
 
@@ -361,7 +361,7 @@ namespace MatchZy
         {
             if (connection == null)
             {
-                Log("[SetMatchEndData] Database connection is not initialized");
+                // Log("[SetMatchEndData] Database connection is not initialized");
                 return;
             }
 
@@ -376,11 +376,11 @@ namespace MatchZy
 
                 await connection.ExecuteAsync(sqlQuery, new { matchId, winnerName, t1score, t2score });
 
-                Log($"[SetMatchEndData] Data updated for matchId: {matchId} winnerName: {winnerName}");
+                // Log($"[SetMatchEndData] Data updated for matchId: {matchId} winnerName: {winnerName}");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                Log($"[SetMatchEndData - FATAL] Error updating data of matchId: {matchId} [ERROR]: {ex.Message}");
+                // Log($"[SetMatchEndData - FATAL] Error updating data of matchId: {matchId} [ERROR]: {ex.Message}");
             }
         }
 
@@ -388,7 +388,7 @@ namespace MatchZy
         {
             if (connection == null)
             {
-                Log("[UpdateMapStatsAsync] Database connection is not initialized");
+                // Log("[UpdateMapStatsAsync] Database connection is not initialized");
                 return;
             }
 
@@ -401,9 +401,9 @@ namespace MatchZy
 
                 await connection.ExecuteAsync(sqlQuery, new { matchId, mapNumber, t1score, t2score });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                Log($"[UpdatePlayerStats - FATAL] Error updating data of matchId: {matchId} [ERROR]: {ex.Message}");
+                // Log($"[UpdatePlayerStats - FATAL] Error updating data of matchId: {matchId} [ERROR]: {ex.Message}");
             }
         }
 
@@ -411,7 +411,7 @@ namespace MatchZy
         {
             if (connection == null)
             {
-                Log("[UpdatePlayerStatsAsync] Database connection is not initialized");
+                // Log("[UpdatePlayerStatsAsync] Database connection is not initialized");
                 return;
             }
 
@@ -419,7 +419,7 @@ namespace MatchZy
             {
                 foreach (ulong steamid64 in playerStatsDictionary.Keys)
                 {
-                    Log($"[UpdatePlayerStats] Going to update data for Match: {matchId}, MapNumber: {mapNumber}, Player: {steamid64}");
+                    // Log($"[UpdatePlayerStats] Going to update data for Match: {matchId}, MapNumber: {mapNumber}, Player: {steamid64}");
 
                     var playerStats = playerStatsDictionary[steamid64];
 
@@ -516,12 +516,12 @@ namespace MatchZy
                             enemies_flashed = playerStats["EnemiesFlashed"]
                         });
 
-                    Log($"[UpdatePlayerStats] Data inserted/updated for player {steamid64} in match {matchId}");
+                    // Log($"[UpdatePlayerStats] Data inserted/updated for player {steamid64} in match {matchId}");
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                Log($"[UpdatePlayerStats - FATAL] Error inserting/updating data: {ex.Message}");
+                // Log($"[UpdatePlayerStats - FATAL] Error inserting/updating data: {ex.Message}");
             }
         }
 
@@ -591,7 +591,7 @@ namespace MatchZy
             string defaultConfigJson = JsonSerializer.Serialize(defaultConfig, new JsonSerializerOptions { WriteIndented = true });
             File.WriteAllText(configFile, defaultConfigJson);
 
-            Log($"[InitializeDatabase] Default configuration file created at: {configFile}");
+            // Log($"[InitializeDatabase] Default configuration file created at: {configFile}");
         }
 
         private void SetDatabaseConfig(string directory)
@@ -601,7 +601,7 @@ namespace MatchZy
             if (!File.Exists(configFile))
             {
                 // Create a default configuration if the file doesn't exist
-                Log($"[InitializeDatabase] database.json doesn't exist, creating default!");
+                // Log($"[InitializeDatabase] database.json doesn't exist, creating default!");
                 CreateDefaultConfigFile(configFile);
             }
 

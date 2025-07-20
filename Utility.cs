@@ -1,3 +1,11 @@
+using System.Net.WebSockets;
+using System.Xml;
+using System.Runtime.Serialization;
+using System.Xml.Serialization;
+using System.IO.Pipes;
+using System.Net;
+using System.ComponentModel.Design;
+using System.Net.Security;
 using System.Text.Json;
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
@@ -286,7 +294,7 @@ namespace MatchZy
             ShowDamageInfo();
             PrintToAllChat(Localizer["matchzy.knife.sidedecisionpending", knifeWinnerName]);
             sideSelectionMessageTimer ??= AddTimer(chatTimerDelay, SendSideSelectionMessage, TimerFlags.REPEAT);
-            
+
             // Запускаем таймер для автовыбора стороны
             DrawSideSelection();
         }
@@ -320,15 +328,15 @@ namespace MatchZy
         private void StartLive()
         {
             SetupLiveFlagsAndCfg();
-     //       StartDemoRecording();
+            //       StartDemoRecording();
 
             // Storing 0-0 score backup file as lastBackupFileName, so that .stop functions properly in first round.
-          //  lastBackupFileName = $"matchzy_{liveMatchId}_{matchConfig.CurrentMapNumber}_round00.txt";
-           // lastMatchZyBackupFileName = $"matchzy_{liveMatchId}_{matchConfig.CurrentMapNumber}_round00.json";
+            //  lastBackupFileName = $"matchzy_{liveMatchId}_{matchConfig.CurrentMapNumber}_round00.txt";
+            // lastMatchZyBackupFileName = $"matchzy_{liveMatchId}_{matchConfig.CurrentMapNumber}_round00.json";
 
             // This is to reload the map once it is over so that all flags are reset accordingly
             Server.ExecuteCommand("mp_match_end_restart true");
-            
+
             // Запускаем мониторинг FFW
             StartFFWMonitoring();
 
@@ -573,7 +581,7 @@ namespace MatchZy
         {
             (int tAlive, int tHealth) = GetAlivePlayers(2);
             (int ctAlive, int ctHealth) = GetAlivePlayers(3);
-            
+
             Log($"[KNIFE OVER] CT Alive: {ctAlive} with Total Health: {ctHealth}, T Alive: {tAlive} with Total Health: {tHealth}");
 
             if (ctAlive == 0 && tAlive == 0)
@@ -584,18 +592,18 @@ namespace MatchZy
             }
 
             if (ctAlive != tAlive)
-                {
-                    knifeWinner = ctAlive > tAlive ? 3 : 2;
-                }
-                else if (ctHealth != tHealth)
-                {
-                    knifeWinner = ctHealth > tHealth ? 3 : 2;
-                }
-                else
-                {
-                    Random random = new();
-                    knifeWinner = random.Next(2, 4);
-                }
+            {
+                knifeWinner = ctAlive > tAlive ? 3 : 2;
+            }
+            else if (ctHealth != tHealth)
+            {
+                knifeWinner = ctHealth > tHealth ? 3 : 2;
+            }
+            else
+            {
+                Random random = new();
+                knifeWinner = random.Next(2, 4);
+            }
         }
 
         private void HandleKnifeWinner(EventCsWinPanelRound @event)
@@ -746,7 +754,8 @@ namespace MatchZy
                     if (playerData[key].TeamNum == 3)
                     {
                         matchzyTeam1.teamName = "team_" + RemoveSpecialCharacters(playerData[key].PlayerName.Replace(" ", "_"));
-                        foreach (var coach in matchzyTeam1.coach) {
+                        foreach (var coach in matchzyTeam1.coach)
+                        {
                             coach.Clan = $"[{matchzyTeam1.teamName} COACH]";
                         }
                         break;
@@ -765,7 +774,8 @@ namespace MatchZy
                     if (playerData[key].TeamNum == 2)
                     {
                         matchzyTeam2.teamName = "team_" + RemoveSpecialCharacters(playerData[key].PlayerName.Replace(" ", "_"));
-                        foreach (var coach in matchzyTeam2.coach) {
+                        foreach (var coach in matchzyTeam2.coach)
+                        {
                             coach.Clan = $"[{matchzyTeam2.teamName} COACH]";
                         }
                         break;
@@ -795,7 +805,7 @@ namespace MatchZy
             }
             else
             {
-              //  StartDemoRecording();
+                //  StartDemoRecording();
                 StartLive();
             }
             if (showCreditsOnMatchStart.Value)
@@ -813,7 +823,7 @@ namespace MatchZy
         }
 
         public void HandleClanTags()
-        { 
+        {
             // Currently it is not possible to keep updating player tags while in warmup without restarting the match
             // Hence returning from here until we find a proper solution
             /*
@@ -863,7 +873,7 @@ namespace MatchZy
             int currentMapNumber = matchConfig.CurrentMapNumber;
             Log($"[HandleMatchEnd] MAP ENDED, isMatchSetup: {isMatchSetup} matchid: {liveMatchId} currentMapNumber: {currentMapNumber}");
 
-           // StopDemoRecording(tvFlushDelay - 0.5f, activeDemoFile, liveMatchId, currentMapNumber);
+            // StopDemoRecording(tvFlushDelay - 0.5f, activeDemoFile, liveMatchId, currentMapNumber);
 
             string winnerName = GetMatchWinnerName();
             (int t1score, int t2score) = GetTeamsScore();
@@ -885,7 +895,7 @@ namespace MatchZy
             {
                 await SendEventAsync(mapResultEvent);
                 await database.SetMapEndData(liveMatchId, currentMapNumber, winnerName, t1score, t2score, team1SeriesScore, team2SeriesScore);
-              //  await database.WritePlayerStatsToCsv(statsPath, liveMatchId, currentMapNumber);
+                //  await database.WritePlayerStatsToCsv(statsPath, liveMatchId, currentMapNumber);
             });
 
             // If a match is not setup, it was supposed to be a pug/scrim with 1 map
@@ -953,11 +963,11 @@ namespace MatchZy
             KillPhaseTimers();
 
 
-
             AddTimer(restartDelay - 4, () =>
             {
                 if (!isMatchSetup) return;
-                ChangeMap(nextMap, 3.0f);
+                KickAllPlayers();
+                //  ChangeMap(nextMap, 3.0f);
                 matchStarted = false;
                 readyAvailable = true;
                 isPaused = false;
@@ -971,7 +981,10 @@ namespace MatchZy
                 IsAllowTimer = false;
                 StartWarmup();
                 SetMapSides();
+
             });
+
+          //  Server.ExecuteCommand($"map ar_baggage");
         }
 
         private void ChangeMap(string mapName, float delay)
@@ -990,6 +1003,17 @@ namespace MatchZy
                     Server.ExecuteCommand($"changelevel \"{mapName}\"");
                 }
             });
+        }
+
+        public void KickAllPlayers()
+        {
+            foreach (var player in Utilities.GetPlayers())
+            {
+                if (IsPlayerValid(player))
+                {
+                    Server.ExecuteCommand($"kickid {player.UserId}");
+                }
+            }
         }
 
         private string GetMatchWinnerName()
@@ -1043,7 +1067,7 @@ namespace MatchZy
             if (!matchStarted) return;
             playerHasTakenDamage = false;
             HandleCoaches();
-          //  CreateMatchZyRoundDataBackup();
+            //  CreateMatchZyRoundDataBackup();
             InitPlayerDamageInfo();
             UpdateHostname();
         }
@@ -1186,7 +1210,7 @@ namespace MatchZy
                 PrintToPlayerChat(player, Localizer["matchzy.pause.techpausenotenabled"]);
                 return;
             }
-            if(!string.IsNullOrEmpty(techPausePermission.Value) && techPausePermission.Value != "\"\"")
+            if (!string.IsNullOrEmpty(techPausePermission.Value) && techPausePermission.Value != "\"\"")
             {
                 if (!IsPlayerAdmin(player, "css_pause", techPausePermission.Value))
                 {
@@ -1413,7 +1437,7 @@ namespace MatchZy
         }
 
         public void LoadClientNames()
-        { 
+        {
             string namesFileName = "Match_" + liveMatchId.ToString() + ".ini";
             string namesFilePath = Server.GameDirectory + "/csgo/MatchZyPlayerNames/" + namesFileName;
             string? directoryPath = Path.GetDirectoryName(namesFilePath);
@@ -1821,10 +1845,13 @@ namespace MatchZy
 
         public void KickPlayer(CCSPlayerController player)
         {
-            if (player.UserId.HasValue)
+            Server.NextFrame(() =>
             {
-                Server.ExecuteCommand($"kickid {(ushort)player.UserId}");
-            }
+                if (player.UserId.HasValue && IsPlayerValid(player))
+                {
+                    Server.ExecuteCommand($"kickid {(ushort)player.UserId}");
+                }
+            });
         }
 
         public bool IsPlayerValid(CCSPlayerController? player)
@@ -2053,7 +2080,7 @@ namespace MatchZy
             foreach (var player in players)
             {
                 if (!IsPlayerValid(player)) continue;
-                
+
                 if (teamSpawns[player.TeamNum].Count == 0) break;
 
                 int randomIndex = random.Next(teamSpawns[player.TeamNum].Count);
@@ -2061,6 +2088,16 @@ namespace MatchZy
                 teamSpawns[player.TeamNum].RemoveAt(randomIndex);
 
                 spawnPosition.Teleport(player);
+            }
+        }
+
+        public void SmartRestart()
+        {
+            var serverTime = Server.EngineTime;
+
+            if (!matchStarted && serverTime > 86400 && !isMatchLive)
+            {
+                Server.ExecuteCommand("quit");
             }
         }
     }

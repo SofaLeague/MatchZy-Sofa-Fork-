@@ -85,7 +85,7 @@ public partial class MatchZy
             coachSpawns[(byte)CsTeam.CounterTerrorist].Count == 0 || 
             coachSpawns[(byte)CsTeam.Terrorist].Count == 0)
         {
-            Log($"[HandleCoaches] No coach spawns found, player positions will not be swapped!");
+            // Log($"[HandleCoaches] No coach spawns found, player positions will not be swapped!");
             return;
         }
 
@@ -277,11 +277,11 @@ public partial class MatchZy
                 }
                 coachSpawns[team] =  positionList;
             }
-            Log($"[GetCoachSpawns] Loaded {coachSpawns.Count} coach spawns");
+            // Log($"[GetCoachSpawns] Loaded {coachSpawns.Count} coach spawns");
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            Log($"[GetCoachSpawns - FATAL] Error getting coach spawns. [ERROR]: {ex.Message}");
+            // Log($"[GetCoachSpawns - FATAL] Error getting coach spawns. [ERROR]: {ex.Message}");
         }
     }
 }

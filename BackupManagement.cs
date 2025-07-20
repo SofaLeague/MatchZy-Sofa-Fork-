@@ -101,7 +101,7 @@ namespace MatchZy
                     else
                     {
                         // This should not happen, lastMatchZyBackupFileName should not be empty in a live game!
-                        Log($"[OnStopCommand] lastMatchZyBackupFileName not found, unable to restore round!");
+                    //    Log($"[OnStopCommand] lastMatchZyBackupFileName not found, unable to restore round!");
                     }
 
                 }
@@ -230,7 +230,7 @@ namespace MatchZy
             if (!File.Exists(filePath))
             {
                 ReplyToUserCommand(player, Localizer["matchzy.backup.restoredoesntexist", fileName]);
-                Log($"[RestoreRoundBackup FATAL] Required backup data file does not exist! File: {filePath}");
+              //  Log($"[RestoreRoundBackup FATAL] Required backup data file does not exist! File: {filePath}");
                 return;
             }
 
@@ -372,9 +372,9 @@ namespace MatchZy
                     // AddTimer(5, () => File.Delete(tempFilePath));
                 }*/
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                Log($"[RestoreRoundBackup FATAL] An error occurred: {e.Message}");
+            //    Log($"[RestoreRoundBackup FATAL] An error occurred: {e.Message}");
                 return;
             }
 
@@ -521,9 +521,9 @@ namespace MatchZy
                 info = $"{filePath.Split("/")[^1]} {backupData["timestamp"]} {backupData["team1_name"]} {backupData["team2_name"]} {backupData["map_name"]} {backupData["team1_score"]} {backupData["team2_score"]}";
 
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                Log($"[GetBackupInfo FATAL] An error occurred: {e.Message}");
+             //   Log($"[GetBackupInfo FATAL] An error occurred: {e.Message}");
                 return "";
             }
 
@@ -571,12 +571,12 @@ namespace MatchZy
             string headerName = command.ArgCount > 3 ? command.ArgByIndex(2) : "";
             string headerValue = command.ArgCount > 3 ? command.ArgByIndex(3) : "";
 
-            Log($"[LoadBackupFromURL] Backup Restore request received with URL: {url} headerName: {headerName} and headerValue: {headerValue}");
+        //    Log($"[LoadBackupFromURL] Backup Restore request received with URL: {url} headerName: {headerName} and headerValue: {headerValue}");
 
             if (!IsValidUrl(url))
             {
                 ReplyToUserCommand(player, Localizer["matchzy.mm.invalidurl", url]);
-                Log($"[LoadBackupFromURL] Invalid URL: {url}. Please provide a valid URL to load the backup!");
+            //    Log($"[LoadBackupFromURL] Invalid URL: {url}. Please provide a valid URL to load the backup!");
                 return;
             }
             try
@@ -591,7 +591,7 @@ namespace MatchZy
                 if (response.IsSuccessStatusCode)
                 {
                     string jsonData = response.Content.ReadAsStringAsync().Result;
-                    Log($"[LoadBackupFromURL] Received following data: {jsonData}");
+                //    Log($"[LoadBackupFromURL] Received following data: {jsonData}");
                     string fileName = Guid.NewGuid().ToString() + ".json";
                     string filePath = Path.Combine(Server.GameDirectory, "csgo", "MatchZyDataBackup", fileName);
 
@@ -601,19 +601,19 @@ namespace MatchZy
                         Directory.CreateDirectory(directoryPath);
                     }
                     File.WriteAllText(filePath, jsonData);
-                    Log($"[LoadBackupFromURL] Data saved to: {filePath}");
+            //        Log($"[LoadBackupFromURL] Data saved to: {filePath}");
 
                     RestoreRoundBackup(player, fileName);
                 }
                 else
                 {
                     ReplyToUserCommand(player, Localizer["matchzy.mm.httprequestfailed", response.StatusCode]);
-                    Log($"[LoadBackupFromURL] HTTP request failed with status code: {response.StatusCode}");
+             //       Log($"[LoadBackupFromURL] HTTP request failed with status code: {response.StatusCode}");
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                Log($"[LoadBackupFromURL - FATAL] An error occured: {e.Message}");
+            //    Log($"[LoadBackupFromURL - FATAL] An error occured: {e.Message}");
                 return;
             }
         }

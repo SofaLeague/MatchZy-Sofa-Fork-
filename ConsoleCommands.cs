@@ -64,7 +64,7 @@ namespace MatchZy
         public void OnPlayerReady(CCSPlayerController? player, CommandInfo? command)
         {
             if (player == null) return;
-            Log($"[!ready command] Sent by: {player.UserId} readyAvailable: {readyAvailable} matchStarted: {matchStarted}");
+            // Log($"[!ready command] Sent by: {player.UserId} readyAvailable: {readyAvailable} matchStarted: {matchStarted}");
             if (readyAvailable && !matchStarted)
             {
                 if (player.UserId.HasValue)
@@ -95,7 +95,7 @@ namespace MatchZy
         public void OnPlayerUnReady(CCSPlayerController? player, CommandInfo? command)
         {
             if (player == null) return;
-            Log($"[!unready command] {player.UserId}");
+            // Log($"[!unready command] {player.UserId}");
             if (readyAvailable && !matchStarted)
             {
                 if (player.UserId.HasValue)
@@ -123,7 +123,7 @@ namespace MatchZy
         {
             if (player == null || !isSideSelectionPhase) return;
 
-            Log($"[!stay command] {player.UserId}, TeamNum: {player.TeamNum}, knifeWinner: {knifeWinner}, isSideSelectionPhase: {isSideSelectionPhase}");
+            // Log($"[!stay command] {player.UserId}, TeamNum: {player.TeamNum}, knifeWinner: {knifeWinner}, isSideSelectionPhase: {isSideSelectionPhase}");
             if (player.TeamNum == knifeWinner)
             {
                 SideSelectionTimer?.Kill();
@@ -140,7 +140,7 @@ namespace MatchZy
         {
             if (player == null || !isSideSelectionPhase) return;
 
-            Log($"[!switch command] {player.UserId}, TeamNum: {player.TeamNum}, knifeWinner: {knifeWinner}, isSideSelectionPhase: {isSideSelectionPhase}");
+            // Log($"[!switch command] {player.UserId}, TeamNum: {player.TeamNum}, knifeWinner: {knifeWinner}, isSideSelectionPhase: {isSideSelectionPhase}");
 
             if (player.TeamNum == knifeWinner)
             {
@@ -323,7 +323,7 @@ namespace MatchZy
 
             if (matchStarted && isMatchLive)
             {
-                Log($"[.tac command sent via chat] Sent by: {player.UserId}, connectedPlayers: {connectedPlayers}");
+                // Log($"[.tac command sent via chat] Sent by: {player.UserId}, connectedPlayers: {connectedPlayers}");
                 if (isPaused)
                 {
                     // ReplyToUserCommand(player, "Match is already paused, cannot start a tactical timeout!");

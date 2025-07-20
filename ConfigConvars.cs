@@ -102,7 +102,7 @@ namespace MatchZy
                 string path = command.ArgByIndex(1);
                 if (path[0] == '/' || path[0] == '.' || path[^1] != '/' || path.Contains("//"))
                 {
-                    Log($"matchzy_demo_path must end with a slash and must not start with a slash or dot. It will be reset to an empty string! Current value: {demoPath}");
+                    // Log($"matchzy_demo_path must end with a slash and must not start with a slash or dot. It will be reset to an empty string! Current value: {demoPath}");
                 }
                 else
                 {
@@ -135,7 +135,7 @@ namespace MatchZy
             if (url.Trim() == "") return;
             if (!IsValidUrl(url))
             {
-                Log($"[MatchZyDemoUploadURL] Invalid URL: {url}. Please provide a valid URL for uploading the demo!");
+                // Log($"[MatchZyDemoUploadURL] Invalid URL: {url}. Please provide a valid URL for uploading the demo!");
                 return;
             }
             demoUploadURL = url;
@@ -185,7 +185,7 @@ namespace MatchZy
 
             chatPrefix = args;
 
-            Log($"[MatchZyChatPrefix] chatPrefix: {chatPrefix}");
+            // Log($"[MatchZyChatPrefix] chatPrefix: {chatPrefix}");
         }
 
         [ConsoleCommand("matchzy_admin_chat_prefix", "Chat prefix to show whenever an admin sends message using .asay <message>. Default value: [{Green}MatchZy{Default}]")]
@@ -205,7 +205,7 @@ namespace MatchZy
 
             adminChatPrefix = args;
 
-            Log($"[MatchZyAdminChatPrefix] adminChatPrefix: {adminChatPrefix}");
+            // Log($"[MatchZyAdminChatPrefix] adminChatPrefix: {adminChatPrefix}");
         }
 
         [ConsoleCommand("matchzy_chat_messages_timer_delay", "Number of seconds of delay before sending reminder messages from MatchZy (like unready message, paused message, etc). Default: 12")]
@@ -283,7 +283,7 @@ namespace MatchZy
             if (url.Trim() == "") return;
             if (!IsValidUrl(url))
             {
-                Log($"[MatchZyBackupUploadURL] Invalid URL: {url}. Please provide a valid URL for uploading the demo!");
+                // Log($"[MatchZyBackupUploadURL] Invalid URL: {url}. Please provide a valid URL for uploading the demo!");
                 return;
             }
             backupUploadURL = url;

@@ -64,16 +64,12 @@ public partial class MatchZy
                 // Start Warmup when first player connect and match is not started.
                 if (GetRealPlayersCount() == 1)
                 {
-                    Log($"[FULL CONNECT] First player has connected, starting warmup!");
+                    // Log($"[FULL CONNECT] First player has connected, starting warmup!");
                     ExecUnpracCommands();
                     AutoStart();
                 }
 
                 if (GetRealPlayersCount() == matchConfig.MinPlayersToReady * 2) {
-                    Log("11111111111111111111111111111111111111111111111111111111111");
-                    Log(matchConfig.MinPlayersToReady.ToString());
-                    Log(GetRealPlayersCount().ToString());
-                    Log("11111111111111111111111111111111111111111111111111111111111");
                     AddTimer(5.0f, () => {
                         HandleMatchStart();
                     });
