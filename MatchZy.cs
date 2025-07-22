@@ -364,7 +364,8 @@ namespace MatchZy
             // });
 
             RegisterListener<Listeners.OnMapStart>(mapName => { 
-                AddTimer(1.0f, () => {
+                AddTimer(1.0f, () =>
+                {
                     if (!isMatchSetup)
                     {
                         AutoStart();
@@ -372,6 +373,7 @@ namespace MatchZy
                     }
                     if (isWarmup) StartWarmup();
                     if (isPractice) StartPracticeMode();
+                    SmartRestart();
                 });
             });
 
