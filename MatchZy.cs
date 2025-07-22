@@ -373,7 +373,6 @@ namespace MatchZy
                     }
                     if (isWarmup) StartWarmup();
                     if (isPractice) StartPracticeMode();
-                    SmartRestart();
                 });
             });
 

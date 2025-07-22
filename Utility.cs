@@ -1794,6 +1794,7 @@ namespace MatchZy
                 readyAvailable = true;
                 isPractice = false;
                 StartWarmup();
+               // SmartRestart();
             }
             if (autoStartMode == 2)
             {
@@ -2095,8 +2096,9 @@ namespace MatchZy
         {
             var serverTime = Server.EngineTime;
 
-            if (!matchStarted && serverTime > 86400 && !isMatchLive)
+            if (!matchStarted && serverTime > 10 && !isMatchLive)
             {
+                Log("Due to uptime");
                 Server.ExecuteCommand("quit");
             }
         }
