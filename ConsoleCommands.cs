@@ -221,6 +221,13 @@ namespace MatchZy
             PauseMatch(player, command);
         }
 
+
+        [ConsoleCommand("css_check", "Pause the match")]
+        public void OnCheckCommand(CCSPlayerController? player, CommandInfo? command)
+        {
+            SmartRestart();
+        }
+
         [ConsoleCommand("css_pause", "Pause the match")]
         public void OnPauseCommand(CCSPlayerController? player, CommandInfo? command)
         {
