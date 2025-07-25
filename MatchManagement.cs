@@ -647,8 +647,13 @@ namespace MatchZy
 
             if (resetCvarsOnSeriesEnd) ResetChangedConvars();
             isMatchLive = false;
-            AddTimer(5.0f, () => {
+            AddTimer(5.0f, () =>
+            {
                 Server.ExecuteCommand($"map ar_baggage");
+                AddTimer(4.0f, () =>
+                {
+                    SmartRestart();
+                });
             });
             AddTimer(restartDelay, () => {
                 ResetMatch(false);

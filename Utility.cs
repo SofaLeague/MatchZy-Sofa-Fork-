@@ -2096,10 +2096,11 @@ namespace MatchZy
         {
             var serverTime = Server.EngineTime;
 
-            if (!matchStarted && serverTime > 10 && !isMatchLive)
+            if (!matchStarted && serverTime > 86400 && !isMatchLive)
             {
                 Log("Due to uptime");
-                Server.ExecuteCommand("crash");
+                Server.ExecuteCommand("sv_cheats 1");
+                Server.ExecuteCommand("crash_thread");
             }
         }
     }
